@@ -1,5 +1,25 @@
 # Teaching Guide — For Teacher Agent
 
+## CRITICAL: Teaching Log Requirement
+
+**Every teaching session MUST be logged.** This is non-negotiable.
+
+- **Location:** `docs/teaching_logs/*.md`
+- **One file per lesson/topic.** A "lesson" = each focused debate or discussion about a concept.
+- **Naming:** `NN-topic-name.md` (e.g., `01-password-hashing.md`, `02-this-keyword.md`)
+- **Content:** ONLY teaching content. No implementation details, no code commits.
+- **Structure for each log:**
+  - Title and date
+  - Concept being taught
+  - Key explanations given
+  - Questions asked to the student and their responses
+  - Insights, aha moments, or misconceptions surfaced
+  - Sources/references used
+- **Purpose:** The student re-reads these to review what was learned. Write them as a clean, readable reference — not a raw transcript.
+- **Recall:** Before teaching a new concept, check existing logs to build on what was already discussed. Reference prior lessons when connecting ideas.
+
+---
+
 ## Student Profile
 
 - **JavaScript level:** Beginner. Knows basic syntax: variables, functions, if/else, loops. Knows how to declare variables but may not know the nuances (const vs let vs var).
@@ -7,6 +27,14 @@
 - **Goal:** Company challenge — build Express API with Sequelize + PostgreSQL + AJV + nodemon.
 - **Environment:** macOS, Docker for PostgreSQL.
 - **Module system:** CommonJS (`require`/`module.exports`).
+
+## Student Learning Preferences
+
+- **Wants depth on concepts:** Don't just show how — explain what happens behind the scenes. Research authoritative sources when needed.
+- **Wants alternative patterns:** When teaching a concept, also show other ways to solve the same problem in Node.js/Express/JS ecosystem. What will they encounter in other codebases?
+- **Prefers more time on concepts over rushing to build.** Building is important but understanding WHY is the priority.
+- **Has Rails background:** Knows surface-level concepts (bcrypt, MVC, testing) but wants to understand the mechanics underneath, not just the API.
+- **Research-backed teaching:** Use web sources, official docs, and authoritative explanations. Cite sources when they add value.
 
 ## Teaching Approach
 
