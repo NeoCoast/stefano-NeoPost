@@ -10,4 +10,14 @@ const signupSchema = {
   additionalProperties: false,
 };
 
-module.exports = { signupSchema };
+const signinSchema = {
+  type: 'object',
+  properties: {
+    email: { type: 'string', pattern: '^[^@]+@[^@]+\\.[^@]+$' },
+    password: { type: 'string', minLength: 1 },
+  },
+  required: ['email', 'password'],
+  additionalProperties: false,
+};
+
+module.exports = { signupSchema, signinSchema };

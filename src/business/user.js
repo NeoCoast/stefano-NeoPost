@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { RESULT_CODES } = require('../utils/constants');
 const userDataAccess = require('../dataaccess/user');
 
@@ -13,7 +14,9 @@ const signup = async (data) => {
       return { code: RESULT_CODES.ALREADY_EXISTS, data: null };
     }
 
-    const user = await userDataAccess.create(data);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const user = await userDataAccess.create({ ...data, password: hashedPassword });
     const userWithoutPassword = user.toJSON();
     delete userWithoutPassword.password;
 

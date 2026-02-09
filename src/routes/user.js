@@ -1,10 +1,11 @@
 const express = require('express');
+const passport = require('../middlewares/passport');
 
 const router = express.Router();
 const { RESULT_CODES } = require('../utils/constants');
 const userBusiness = require('../business/user');
 const { validateInput } = require('../middlewares/validate-input');
-const { signupSchema } = require('./validators/user-body');
+const { signupSchema, signinSchema } = require('./validators/user-body');
 
 router.post('/signup', validateInput(signupSchema), async (req, res) => {
   const result = await userBusiness.signup(req.body);
@@ -20,6 +21,22 @@ router.post('/signup', validateInput(signupSchema), async (req, res) => {
   }
 
   res.status(201).json(result.data);
+});
+
+router.post('/signin', validateInput(signinSchema), (req, res, next) => {
+  passport.authenticate('local', { session: false }, (err, user) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const userData = user.toJSON();
+    delete userData.password;
+    return res.json(userData);
+  })(req, res, next);
 });
 
 module.exports = router;

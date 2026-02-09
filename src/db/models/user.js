@@ -1,4 +1,5 @@
 const { Model } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
@@ -29,5 +30,11 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
   });
+
+  // Instance method — uses `function` (not =>) so `this` refers to the user instance
+  User.prototype.verifyPassword = async function verifyPassword(password) {
+    return bcrypt.compare(password, this.password);
+  };
+
   return User;
 };
