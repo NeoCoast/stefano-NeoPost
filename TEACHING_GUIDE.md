@@ -155,6 +155,41 @@
 5. **Connect phases.** "Remember how data disappeared on restart in Phase 2? That's the problem we're solving now."
 6. **Open questions over yes/no.** Not "Do you understand async?" but "What do you think happens if you remove `await`?"
 7. **Note what goes deeper later.** "Promises are the thing underneath `async/await`. We're not going deep on them today, but know they exist."
+8. **Use TDD as a teaching tool.** Write tests first, let them fail, then implement. The red-green cycle makes the student see what the code *should* do before writing it.
+
+---
+
+## Observed Teaching Insights (from past sessions)
+
+These are patterns observed while teaching. Future teachers should use these to calibrate.
+
+### What works well with this student
+- **Multiple-choice conceptual questions** before coding — the student engages with them and answers thoughtfully. Use `AskUserQuestion` with 3-4 options to probe understanding.
+- **Comparing to Rails/Ruby** — the student has solid Rails intuitions. Mapping JS concepts to Ruby equivalents clicks fast (e.g., `this` vs `self`, `has_secure_password` vs `bcrypt.hash`).
+- **Showing the anatomy of things** — visual breakdowns like the bcrypt hash format (`$2b$10$salt...hash...`) land well. The student remembers structure.
+- **Asking "why not X?"** — the student responds well to elimination reasoning. "Why not encrypt instead of hash?" produced a strong answer about single points of failure.
+- **Lint errors as teaching moments** — when ESLint flags something (`no-param-reassign`, `global-require`), explain why the rule exists and how to fix it properly rather than disabling it.
+
+### What to watch for
+- **The student will say "not sure" honestly** — don't treat this as failure. It's an invitation to teach. Give the explanation, then re-ask a follow-up to confirm it landed.
+- **The student catches unused imports and dead code** — they pay attention to details. Don't leave loose ends (like importing `faker` without using it).
+- **The student wants TDD** — write tests before implementation. Follow the red-green-refactor cycle explicitly.
+- **The student interrupts when something feels wrong** — this is good. Pause, address the concern, then resume.
+
+### Concepts the student now owns (don't re-teach)
+- `async/await` — understands the pause-and-wait mental model
+- `try/catch` — knows it prevents crashes
+- Arrow functions `=>` — knows the syntax and default usage
+- `module.exports` / `require` — comfortable with CommonJS
+- 3-layer architecture — can explain why each layer exists
+- AJV / JSON Schema validation — knows the middleware pattern
+- Mocha `describe`/`it` — reads tests fluently
+- `before`/`after` hooks — understands test lifecycle and cleanup
+- bcrypt hashing — knows salt, cost factor, one-way nature, hash format
+- `this` keyword — understands the 4 rules, arrow vs function difference
+- Instance methods — knows why `function` keyword is needed
+- Passport basics — knows strategy pattern, `{ session: false }`, custom callbacks
+- Spread operator `...` — used it for non-mutating object copies
 
 ---
 
@@ -216,19 +251,27 @@
 
 **This phase is the biggest since Phase 3.** Three important concepts land here (`this`, instance methods, `function` vs `=>`). Consider splitting across sessions: model + bcrypt (7a-7b), then passport + endpoints (7c-7e), then tests.
 
+> **Class syntax note:** PLAN.md originally showed `User.prototype.verifyPassword = function() {}` using `sequelize.define`. The student uses `class extends Model` syntax instead. In class syntax, instance methods go inside the class body as regular methods. Both are equivalent — `class` is syntactic sugar over prototypes. The key rule still applies: use regular method syntax (not arrow functions) so `this` refers to the instance. This is worth explaining when introducing instance methods.
+
 | Concept | Likely status | What to do |
 |---------|--------------|------------|
-| Instance methods | New | "A method on each individual user. `User.findAll()` is on the model. `user.verifyPassword()` is on ONE specific user. Like 'all dogs bark' vs 'MY dog barks.'" |
+| Instance methods | New | "A method on each individual user. `User.findAll()` is on the model class. `user.verifyPassword()` is on ONE specific user. Like 'all dogs bark' vs 'MY dog barks.' In class syntax, instance methods go inside the class body as regular methods — equivalent to `User.prototype.verifyPassword` but cleaner." |
 | `this` keyword | New and important | "`this` refers to the specific instance. When you call `user.verifyPassword(pw)`, `this` IS that user. `this.password` is THAT user's hashed password." |
-| `function` vs `=>` for `this` | Aha moment | "Arrow functions don't have their own `this`. For instance methods, we NEED `this` to be the user. So we use `function`, not `=>`. Remember Phases 1-2 used `function` everywhere? Now you understand WHY both exist." |
+| `function` vs `=>` for `this` | Aha moment | "Arrow functions don't have their own `this`. For instance methods, we NEED `this` to be the user. In class syntax, regular methods (`async verifyPassword()`) work like `function` — they get `this`. An arrow function (`verifyPassword = () => {}`) would break it. Remember Phases 1-2 used `function` everywhere? Now you understand WHY both exist." |
 | Salt rounds | New concept | "Hashing is one-way — you can't get the password back. The salt adds randomness so two users with 'hello123' get DIFFERENT hashes." |
 | `{ session: false }` | New (API concept) | "Sessions are for browsers with cookies. APIs don't have sessions — each request proves identity independently." |
+| Passport `done` callback | New | "`done(err, user, info)` is Node's callback convention — different from Express `(req, res, next)`. First arg is error, second is result (user or `false`), third is extra info. Passport calls YOUR strategy function, you call `done` to tell it the result." |
+| Custom callback pattern | New (connects to Phase 4) | "`passport.authenticate('local', opts, cb)(req, res, next)` — a function that returns a function, immediately called. Same higher-order pattern as `validateInput(schema)` from Phase 4, but here we also pass a custom callback to control the response format." |
 
 **Let the student discover:**
 - Returning the password hash in the API response (then ask: "Should this be visible?")
 - Using arrow function for `verifyPassword` (`this` will be `undefined`)
 - Forgetting `await` on `bcrypt.compare` (gets `Promise` instead of `true/false`)
 - Trying to sign in before creating a user
+- The `done` callback — let the student try `return user` instead of calling `done(null, user)` in the passport strategy and see that passport hangs
+
+**Connect to prior phases:**
+- "Remember `validateInput(schema)` from Phase 4? It's a function that returns middleware. `passport.authenticate('local')` does the same thing — returns middleware that checks credentials instead of checking body shape. Same pattern, different purpose."
 
 **Check understanding:**
 - "Why do we hash passwords instead of storing them directly?"
@@ -236,6 +279,9 @@
 - "Why does signup NOT use passport? Why is signin different?"
 - "If two users have 'hello123', will their hashes be the same? Why not?"
 - "Why `{ session: false }` on `passport.authenticate`?"
+- "How is `passport.authenticate('local', { session: false })` similar to `validateInput(schema)`? What pattern do they share?"
+- "If you have user1 and user2, and call `user1.verifyPassword('hello')`, which password does it check? Why?"
+- "Should passport logic live in the route layer or the business layer? Why might someone argue for either?"
 
 ---
 
