@@ -16,7 +16,7 @@ router.post('/signup', validateInput(signupSchema), async (req, res) => {
   }
 
   if (result.code === RESULT_CODES.ERROR) {
-    res.status(500).json({ message: 'Error creating user' });
+    res.status(500).json({ message: 'Error creating user', error: result.data });
     return;
   }
 

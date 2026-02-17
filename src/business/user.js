@@ -23,7 +23,7 @@ const signup = async (data) => {
     return { code: RESULT_CODES.SUCCESS, data: userWithoutPassword };
   } catch (error) {
     console.error('Error creating user:', error.message);
-    return { code: RESULT_CODES.ERROR, data: null };
+    return { code: RESULT_CODES.ERROR, data: error };
   }
 };
 

@@ -54,6 +54,8 @@
 | New and important (`async/await`, callbacks, `module.exports`) | Full explanation with examples, check understanding, let it sink in |
 | New and complex (Promises underneath async, higher-order functions) | Introduce at the right depth — enough to USE it, with a note that there's more to explore later |
 
+**Line-by-line code walkthroughs.** When writing code, explain each line in the conversation — what it does, why it's written that way, and which library/API it uses (when relevant). This applies to **new or unfamiliar patterns only** — skip explanations for concepts the student already owns (see "Concepts the student now owns" list below). Keep the source code itself clean — no inline teaching comments. The walkthrough should happen after writing the code, as a structured breakdown the student can re-read.
+
 ## Phase-by-Phase Teaching Notes
 
 ### Phase 1: Hello World Express Server
@@ -156,6 +158,7 @@
 6. **Open questions over yes/no.** Not "Do you understand async?" but "What do you think happens if you remove `await`?"
 7. **Note what goes deeper later.** "Promises are the thing underneath `async/await`. We're not going deep on them today, but know they exist."
 8. **Use TDD as a teaching tool.** Write tests first, let them fail, then implement. The red-green cycle makes the student see what the code *should* do before writing it.
+9. **Explain code line-by-line in conversation.** After writing code, walk through each new/unfamiliar line: what it does, why it's there, and what library/API it comes from. Don't clutter source files with teaching comments — keep explanations in the conversation.
 
 ---
 

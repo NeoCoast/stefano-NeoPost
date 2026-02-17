@@ -4,6 +4,7 @@ const userDataAccess = require('../dataaccess/user');
 
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
+
   async (email, password, done) => {
     try {
       const user = await userDataAccess.findByEmail(email);
