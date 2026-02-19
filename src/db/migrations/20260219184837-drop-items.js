@@ -1,5 +1,10 @@
 module.exports = {
+  // eslint-disable-next-line no-unused-vars
   async up(queryInterface, Sequelize) {
+    await queryInterface.dropTable('Items');
+  },
+
+  async down(queryInterface, Sequelize) {
     await queryInterface.createTable('Items', {
       id: {
         allowNull: false,
@@ -23,10 +28,5 @@ module.exports = {
         type: 'TIMESTAMPTZ',
       },
     });
-  },
-
-  // eslint-disable-next-line no-unused-vars
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Items');
   },
 };
