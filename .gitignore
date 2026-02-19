@@ -5,3 +5,4 @@ jsconfig.json
 .agents/
 .cursor/
 AGENTS.md
+.worktrees/
