@@ -23,6 +23,29 @@ router.post('/signup', validateInput(signupSchema), async (req, res) => {
   res.status(201).json(result.data);
 });
 
+router.get('/confirm', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    res.status(400).json({ message: 'Token is required' });
+    return;
+  }
+
+  const result = await userBusiness.confirmEmail(token);
+
+  if (result.code === RESULT_CODES.NOT_FOUND) {
+    res.status(404).json({ message: 'User not found' });
+    return;
+  }
+
+  if (result.code === RESULT_CODES.ERROR) {
+    res.status(400).json(result.data);
+    return;
+  }
+
+  res.json(result.data);
+});
+
 router.post('/signin', validateInput(signinSchema), (req, res, next) => {
   passport.authenticate('local', { session: false }, (err, user) => {
     if (err) {

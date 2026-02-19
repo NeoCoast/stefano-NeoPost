@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { RESULT_CODES } = require('../utils/constants');
 const userDataAccess = require('../dataaccess/user');
-const { generateConfirmationToken } = require('../services/jwt');
+const { generateConfirmationToken, verifyToken } = require('../services/jwt');
 const { sendConfirmationEmail } = require('../services/email');
 
 const signup = async (data) => {
@@ -30,4 +30,19 @@ const signup = async (data) => {
   }
 };
 
-module.exports = { signup };
+const confirmEmail = async (token) => {
+  try {
+    const payload = verifyToken(token, 'email-confirmation');
+    const user = await userDataAccess.confirmUser(payload.userId);
+
+    if (!user) {
+      return { code: RESULT_CODES.NOT_FOUND, data: null };
+    }
+
+    return { code: RESULT_CODES.SUCCESS, data: { message: 'Email confirmed successfully' } };
+  } catch {
+    return { code: RESULT_CODES.ERROR, data: { message: 'Invalid or expired token' } };
+  }
+};
+
+module.exports = { signup, confirmEmail };

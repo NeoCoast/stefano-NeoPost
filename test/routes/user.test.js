@@ -2,6 +2,7 @@ require('dotenv').config();
 const request = require('supertest');
 const { expect } = require('expect');
 const { faker } = require('@faker-js/faker');
+const jwt = require('jsonwebtoken');
 const app = require('../../src/app');
 const db = require('../../src/db/models');
 
@@ -54,6 +55,70 @@ describe('POST /api/users/signup', () => {
     const response = await request(app)
       .post('/api/users/signup')
       .send({ email: 'not-an-email' });
+
+    expect(response.status).toBe(400);
+  });
+});
+
+describe('GET /api/users/confirm', () => {
+  let confirmUser;
+
+  before(async function () {
+    this.timeout(10000);
+    await request(app)
+      .post('/api/users/signup')
+      .send({
+        email: faker.internet.email(),
+        username: faker.internet.username(),
+        password: 'confirmpass123',
+      });
+    confirmUser = await User.findOne({ order: [['createdAt', 'DESC']] });
+  });
+
+  after(async () => {
+    if (confirmUser) await confirmUser.destroy();
+  });
+
+  it('should confirm user with valid token', async () => {
+    const token = jwt.sign(
+      { userId: confirmUser.id },
+      process.env.JWT_SECRET,
+      { audience: 'email-confirmation', expiresIn: '24h' },
+    );
+
+    const response = await request(app)
+      .get(`/api/users/confirm?token=${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBeDefined();
+
+    await confirmUser.reload();
+    expect(confirmUser.confirmed).toBe(true);
+  });
+
+  it('should return 400 for invalid token', async () => {
+    const response = await request(app)
+      .get('/api/users/confirm?token=invalid-token');
+
+    expect(response.status).toBe(400);
+  });
+
+  it('should return 400 for auth token used as confirmation', async () => {
+    const authToken = jwt.sign(
+      { userId: confirmUser.id },
+      process.env.JWT_SECRET,
+      { audience: 'api', expiresIn: '24h' },
+    );
+
+    const response = await request(app)
+      .get(`/api/users/confirm?token=${authToken}`);
+
+    expect(response.status).toBe(400);
+  });
+
+  it('should return 400 when no token provided', async () => {
+    const response = await request(app)
+      .get('/api/users/confirm');
 
     expect(response.status).toBe(400);
   });
