@@ -16,6 +16,7 @@ module.exports = [
       },
     },
     rules: {
+      strict: 'off',
       'no-console': 'warn',
     },
   },

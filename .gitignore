@@ -1,3 +1,7 @@
 node_modules/
 .env
 .claude/
+jsconfig.json
+.agents/
+.cursor/
+AGENTS.md
