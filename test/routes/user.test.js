@@ -1,3 +1,4 @@
+require('dotenv').config();
 const request = require('supertest');
 const { expect } = require('expect');
 const { faker } = require('@faker-js/faker');
@@ -12,20 +13,27 @@ describe('POST /api/users/signup', () => {
     username: faker.internet.username(),
     password: 'securepass123',
   };
+  let signupResponse;
+
+  before(async function () {
+    this.timeout(10000);
+    signupResponse = await request(app)
+      .post('/api/users/signup')
+      .send(validUser);
+  });
 
   after(async () => {
     await User.destroy({ where: { email: validUser.email } });
   });
 
-  it('should return 201 and user data without password', async () => {
-    const response = await request(app)
-      .post('/api/users/signup')
-      .send(validUser);
+  it('should return 201 and a confirmation message', () => {
+    expect(signupResponse.status).toBe(201);
+    expect(signupResponse.body.message).toBeDefined();
+  });
 
-    expect(response.status).toBe(201);
-    expect(response.body.email).toBe(validUser.email);
-    expect(response.body.username).toBe(validUser.username);
-    expect(response.body.password).toBeUndefined();
+  it('should store user with confirmed: false', async () => {
+    const user = await User.findOne({ where: { email: validUser.email } });
+    expect(user.confirmed).toBe(false);
   });
 
   it('should store a hashed password, not plaintext', async () => {
@@ -58,7 +66,8 @@ describe('POST /api/users/signin', () => {
     password: 'testpass456',
   };
 
-  before(async () => {
+  before(async function () {
+    this.timeout(10000);
     await request(app)
       .post('/api/users/signup')
       .send(testUser);
