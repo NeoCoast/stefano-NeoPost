@@ -1,12 +1,8 @@
-const { FlatCompat } = require('@eslint/eslintrc');
+const js = require('@eslint/js');
 const globals = require('globals');
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
 module.exports = [
-  ...compat.extends('airbnb-base'),
+  js.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: 2022,
@@ -18,6 +14,7 @@ module.exports = [
     rules: {
       strict: 'off',
       'no-console': 'warn',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
   {
