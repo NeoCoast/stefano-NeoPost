@@ -178,6 +178,7 @@ These are patterns observed while teaching. Future teachers should use these to 
 - **The student catches unused imports and dead code** — they pay attention to details. Don't leave loose ends (like importing `faker` without using it).
 - **The student wants TDD** — write tests before implementation. Follow the red-green-refactor cycle explicitly.
 - **The student interrupts when something feels wrong** — this is good. Pause, address the concern, then resume.
+- **The student's first instinct may be technically reasonable but architecturally wrong** — e.g., they chose the passport strategy for the confirmation check (reasonable: keep auth concerns in the strategy) but the Socratic follow-up (resend-confirmation endpoint) quickly surfaced the tradeoff. Elimination reasoning works well.
 
 ### Concepts the student now owns (don't re-teach)
 - `async/await` — understands the pause-and-wait mental model
@@ -193,6 +194,10 @@ These are patterns observed while teaching. Future teachers should use these to 
 - Instance methods — knows why `function` keyword is needed
 - Passport basics — knows strategy pattern, `{ session: false }`, custom callbacks
 - Spread operator `...` — used it for non-mutating object copies
+- JWT — understands anatomy (header.payload.signature), signing vs encoding, `aud` claim, stateless nature, `jwt.verify` throws on failure
+- dotenv — knows why secrets go in env vars, `.env` + `.env.example` pattern, why dotenv must load first
+- Nodemailer — understands SMTP transports, Ethereal for dev, Brevo SMTP for prod, lazy transporter init
+- passport-jwt — knows `ExtractJwt.fromAuthHeaderAsBearerToken()`, `Authorization: Bearer` header, audience enforcement, same gatekeeper pattern as `validateInput(schema)`
 
 ---
 
