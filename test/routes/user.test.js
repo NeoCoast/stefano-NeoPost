@@ -203,3 +203,70 @@ describe('POST /api/users/signin', () => {
     await User.destroy({ where: { email: unconfirmedUser.email } });
   });
 });
+
+describe('GET /api/users/me', () => {
+  let authToken;
+  const meUser = {
+    email: faker.internet.email(),
+    username: faker.internet.username(),
+    password: 'mepass789',
+  };
+
+  before(async function () {
+    this.timeout(10000);
+    await request(app)
+      .post('/api/users/signup')
+      .send(meUser);
+
+    const user = await User.findOne({ where: { email: meUser.email } });
+    user.confirmed = true;
+    await user.save();
+
+    const signinResponse = await request(app)
+      .post('/api/users/signin')
+      .send({ email: meUser.email, password: meUser.password });
+
+    authToken = signinResponse.body.token;
+  });
+
+  after(async () => {
+    await User.destroy({ where: { email: meUser.email } });
+  });
+
+  it('should return 204 with a valid JWT', async () => {
+    const response = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response.status).toBe(204);
+  });
+
+  it('should return 401 without a token', async () => {
+    const response = await request(app)
+      .get('/api/users/me');
+
+    expect(response.status).toBe(401);
+  });
+
+  it('should return 401 with an invalid token', async () => {
+    const response = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', 'Bearer invalid-token-here');
+
+    expect(response.status).toBe(401);
+  });
+
+  it('should return 401 with a confirmation token (wrong audience)', async () => {
+    const confirmToken = jwt.sign(
+      { userId: 1 },
+      process.env.JWT_SECRET,
+      { audience: 'email-confirmation', expiresIn: '24h' },
+    );
+
+    const response = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${confirmToken}`);
+
+    expect(response.status).toBe(401);
+  });
+});

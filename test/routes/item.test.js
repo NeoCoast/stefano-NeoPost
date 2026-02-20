@@ -1,3 +1,4 @@
+require('dotenv').config();
 const request = require('supertest');
 const { expect } = require('expect');
 const { faker } = require('@faker-js/faker');

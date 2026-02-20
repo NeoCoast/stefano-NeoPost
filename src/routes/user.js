@@ -68,4 +68,8 @@ router.post('/signin', validateInput(signinSchema), (req, res, next) => {
   })(req, res, next);
 });
 
+router.get('/me', passport.authenticate('jwt', { session: false }), (req, res) => {
+  res.status(204).send();
+});
+
 module.exports = router;
