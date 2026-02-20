@@ -15,4 +15,19 @@ const create = async (data) => {
   return user;
 };
 
-module.exports = { findByEmail, findByUsername, create };
+const findById = async (id) => {
+  const user = await User.findByPk(id);
+  return user;
+};
+
+const confirmUser = async (id) => {
+  const user = await User.findByPk(id);
+  if (!user) return null;
+  user.confirmed = true;
+  await user.save();
+  return user;
+};
+
+module.exports = {
+  findByEmail, findByUsername, create, findById, confirmUser,
+};

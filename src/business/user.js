@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const { RESULT_CODES } = require('../utils/constants');
 const userDataAccess = require('../dataaccess/user');
+const { generateConfirmationToken, verifyToken } = require('../services/jwt');
+const { sendConfirmationEmail } = require('../services/email');
 
 const signup = async (data) => {
   try {
@@ -17,14 +19,30 @@ const signup = async (data) => {
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await userDataAccess.create({ ...data, password: hashedPassword });
-    const userWithoutPassword = user.toJSON();
-    delete userWithoutPassword.password;
 
-    return { code: RESULT_CODES.SUCCESS, data: userWithoutPassword };
+    const token = generateConfirmationToken(user.id);
+    await sendConfirmationEmail(user.email, token);
+
+    return { code: RESULT_CODES.SUCCESS, data: { message: 'Check your email to confirm your account' } };
   } catch (error) {
     console.error('Error creating user:', error.message);
     return { code: RESULT_CODES.ERROR, data: error };
   }
 };
 
-module.exports = { signup };
+const confirmEmail = async (token) => {
+  try {
+    const payload = verifyToken(token, 'email-confirmation');
+    const user = await userDataAccess.confirmUser(payload.userId);
+
+    if (!user) {
+      return { code: RESULT_CODES.NOT_FOUND, data: null };
+    }
+
+    return { code: RESULT_CODES.SUCCESS, data: { message: 'Email confirmed successfully' } };
+  } catch {
+    return { code: RESULT_CODES.ERROR, data: { message: 'Invalid or expired token' } };
+  }
+};
+
+module.exports = { signup, confirmEmail };
