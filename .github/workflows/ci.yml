@@ -67,3 +67,4 @@ jobs:
           DB_USER: postgres
           DB_PASSWORD: postgres
           DB_NAME: neopost_test
+          JWT_SECRET: test-secret
