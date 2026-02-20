@@ -1,5 +1,6 @@
 const express = require('express');
 const passport = require('../middlewares/passport');
+const { generateAuthToken } = require('../services/jwt');
 
 const router = express.Router();
 const { RESULT_CODES } = require('../utils/constants');
@@ -56,9 +57,14 @@ router.post('/signin', validateInput(signinSchema), (req, res, next) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    if (!user.confirmed) {
+      return res.status(403).json({ message: 'Please confirm your email before signing in' });
+    }
+
+    const token = generateAuthToken(user.id);
     const userData = user.toJSON();
     delete userData.password;
-    return res.json(userData);
+    return res.json({ token, user: userData });
   })(req, res, next);
 });
 

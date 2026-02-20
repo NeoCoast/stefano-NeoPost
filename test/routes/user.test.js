@@ -136,20 +136,26 @@ describe('POST /api/users/signin', () => {
     await request(app)
       .post('/api/users/signup')
       .send(testUser);
+
+    const user = await User.findOne({ where: { email: testUser.email } });
+    user.confirmed = true;
+    await user.save();
   });
 
   after(async () => {
     await User.destroy({ where: { email: testUser.email } });
   });
 
-  it('should return 200 and user data for valid credentials', async () => {
+  it('should return 200 and a JWT token for valid confirmed user', async () => {
     const response = await request(app)
       .post('/api/users/signin')
       .send({ email: testUser.email, password: testUser.password });
 
     expect(response.status).toBe(200);
-    expect(response.body.email).toBe(testUser.email);
-    expect(response.body.password).toBeUndefined();
+    expect(response.body.token).toBeDefined();
+    expect(typeof response.body.token).toBe('string');
+    expect(response.body.user.email).toBe(testUser.email);
+    expect(response.body.user.password).toBeUndefined();
   });
 
   it('should return 401 for wrong password', async () => {
@@ -174,5 +180,26 @@ describe('POST /api/users/signin', () => {
       .send({ email: testUser.email });
 
     expect(response.status).toBe(400);
+  });
+
+  it('should return 403 for unconfirmed user', async function () {
+    this.timeout(10000);
+    const unconfirmedUser = {
+      email: faker.internet.email(),
+      username: faker.internet.username(),
+      password: 'unconfirmed123',
+    };
+    await request(app)
+      .post('/api/users/signup')
+      .send(unconfirmedUser);
+
+    const response = await request(app)
+      .post('/api/users/signin')
+      .send({ email: unconfirmedUser.email, password: unconfirmedUser.password });
+
+    expect(response.status).toBe(403);
+    expect(response.body.message).toMatch(/confirm/i);
+
+    await User.destroy({ where: { email: unconfirmedUser.email } });
   });
 });
