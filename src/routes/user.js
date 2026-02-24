@@ -61,9 +61,9 @@ router.post('/signin', validateInput(signinSchema), (req, res, next) => {
       return res.status(403).json({ message: 'Please confirm your email before signing in' });
     }
 
-    const token = generateAuthToken(user.id);
-    const userData = user.toJSON();
-    delete userData.password;
+    const token = generateAuthToken(Number(user.id));
+    const { password: _, ...userData } = user;
+    userData.id = Number(userData.id);
     return res.json({ token, user: userData });
   })(req, res, next);
 });
