@@ -4,9 +4,7 @@ const { expect } = require('expect');
 const { faker } = require('@faker-js/faker');
 const jwt = require('jsonwebtoken');
 const app = require('../../src/app');
-const db = require('../../src/db/models');
-
-const { User } = db;
+const prisma = require('../../src/db/prisma');
 
 describe('POST /api/users/signup', () => {
   const validUser = {
@@ -24,7 +22,7 @@ describe('POST /api/users/signup', () => {
   });
 
   after(async () => {
-    await User.destroy({ where: { email: validUser.email } });
+    await prisma.user.deleteMany({ where: { email: validUser.email } });
   });
 
   it('should return 201 and a confirmation message', () => {
@@ -33,12 +31,12 @@ describe('POST /api/users/signup', () => {
   });
 
   it('should store user with confirmed: false', async () => {
-    const user = await User.findOne({ where: { email: validUser.email } });
+    const user = await prisma.user.findUnique({ where: { email: validUser.email } });
     expect(user.confirmed).toBe(false);
   });
 
   it('should store a hashed password, not plaintext', async () => {
-    const user = await User.findOne({ where: { email: validUser.email } });
+    const user = await prisma.user.findUnique({ where: { email: validUser.email } });
     expect(user.password).not.toBe('securepass123');
     expect(user.password.startsWith('$2b$')).toBe(true);
   });
@@ -72,16 +70,16 @@ describe('GET /api/users/confirm', () => {
         username: faker.internet.username(),
         password: 'confirmpass123',
       });
-    confirmUser = await User.findOne({ order: [['createdAt', 'DESC']] });
+    confirmUser = await prisma.user.findFirst({ orderBy: { createdAt: 'desc' } });
   });
 
   after(async () => {
-    if (confirmUser) await confirmUser.destroy();
+    if (confirmUser) await prisma.user.delete({ where: { id: confirmUser.id } });
   });
 
   it('should confirm user with valid token', async () => {
     const token = jwt.sign(
-      { userId: confirmUser.id },
+      { userId: Number(confirmUser.id) },
       process.env.JWT_SECRET,
       { audience: 'email-confirmation', expiresIn: '24h' },
     );
@@ -92,7 +90,7 @@ describe('GET /api/users/confirm', () => {
     expect(response.status).toBe(200);
     expect(response.body.message).toBeDefined();
 
-    await confirmUser.reload();
+    confirmUser = await prisma.user.findUnique({ where: { id: confirmUser.id } });
     expect(confirmUser.confirmed).toBe(true);
   });
 
@@ -105,7 +103,7 @@ describe('GET /api/users/confirm', () => {
 
   it('should return 400 for auth token used as confirmation', async () => {
     const authToken = jwt.sign(
-      { userId: confirmUser.id },
+      { userId: Number(confirmUser.id) },
       process.env.JWT_SECRET,
       { audience: 'api', expiresIn: '24h' },
     );
@@ -137,13 +135,12 @@ describe('POST /api/users/signin', () => {
       .post('/api/users/signup')
       .send(testUser);
 
-    const user = await User.findOne({ where: { email: testUser.email } });
-    user.confirmed = true;
-    await user.save();
+    const user = await prisma.user.findUnique({ where: { email: testUser.email } });
+    await prisma.user.update({ where: { id: user.id }, data: { confirmed: true } });
   });
 
   after(async () => {
-    await User.destroy({ where: { email: testUser.email } });
+    await prisma.user.deleteMany({ where: { email: testUser.email } });
   });
 
   it('should return 200 and a JWT token for valid confirmed user', async () => {
@@ -200,7 +197,7 @@ describe('POST /api/users/signin', () => {
     expect(response.status).toBe(403);
     expect(response.body.message).toMatch(/confirm/i);
 
-    await User.destroy({ where: { email: unconfirmedUser.email } });
+    await prisma.user.deleteMany({ where: { email: unconfirmedUser.email } });
   });
 });
 
@@ -218,9 +215,8 @@ describe('GET /api/users/me', () => {
       .post('/api/users/signup')
       .send(meUser);
 
-    const user = await User.findOne({ where: { email: meUser.email } });
-    user.confirmed = true;
-    await user.save();
+    const user = await prisma.user.findUnique({ where: { email: meUser.email } });
+    await prisma.user.update({ where: { id: user.id }, data: { confirmed: true } });
 
     const signinResponse = await request(app)
       .post('/api/users/signin')
@@ -230,7 +226,7 @@ describe('GET /api/users/me', () => {
   });
 
   after(async () => {
-    await User.destroy({ where: { email: meUser.email } });
+    await prisma.user.deleteMany({ where: { email: meUser.email } });
   });
 
   it('should return 204 with a valid JWT', async () => {
@@ -269,4 +265,8 @@ describe('GET /api/users/me', () => {
 
     expect(response.status).toBe(401);
   });
+});
+
+after(async () => {
+  await prisma.$disconnect();
 });
