@@ -49,22 +49,13 @@ jobs:
       - run: npm ci
 
       - name: Run migrations
-        run: npx sequelize-cli db:migrate
+        run: npx prisma migrate deploy
         env:
-          NODE_ENV: test
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          DB_NAME: neopost_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/neopost_test?schema=public
 
       - name: Run tests
         run: npm test
         env:
           NODE_ENV: test
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          DB_NAME: neopost_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/neopost_test?schema=public
           JWT_SECRET: test-secret
