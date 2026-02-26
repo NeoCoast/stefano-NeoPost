@@ -2,6 +2,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const userDataAccess = require('../dataaccess/user');
+const { verifyPassword } = require('../utils/auth');
 
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
@@ -13,7 +14,7 @@ passport.use(new LocalStrategy(
         return done(null, false, { message: 'Invalid credentials' });
       }
 
-      const isValid = await user.verifyPassword(password);
+      const isValid = await verifyPassword(user.password, password);
       if (!isValid) {
         return done(null, false, { message: 'Invalid credentials' });
       }

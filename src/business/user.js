@@ -20,7 +20,7 @@ const signup = async (data) => {
 
     const user = await userDataAccess.create({ ...data, password: hashedPassword });
 
-    const token = generateConfirmationToken(user.id);
+    const token = generateConfirmationToken(Number(user.id));
     await sendConfirmationEmail(user.email, token);
 
     return { code: RESULT_CODES.SUCCESS, data: { message: 'Check your email to confirm your account' } };
