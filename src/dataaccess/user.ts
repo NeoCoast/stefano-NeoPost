@@ -1,26 +1,27 @@
-const prisma = require('../db/prisma');
+import type { User, Prisma } from '@prisma/client';
+import prisma from '../db/prisma';
 
-const findByEmail = async (email) => {
+export const findByEmail = async (email: string): Promise<User | null> => {
   const user = await prisma.user.findUnique({ where: { email } });
   return user;
 };
 
-const findByUsername = async (username) => {
+export const findByUsername = async (username: string): Promise<User | null> => {
   const user = await prisma.user.findUnique({ where: { username } });
   return user;
 };
 
-const create = async (data) => {
+export const create = async (data: Prisma.UserCreateInput): Promise<User> => {
   const user = await prisma.user.create({ data });
   return user;
 };
 
-const findById = async (id) => {
+export const findById = async (id: bigint): Promise<User | null> => {
   const user = await prisma.user.findUnique({ where: { id } });
   return user;
 };
 
-const confirmUser = async (id) => {
+export const confirmUser = async (id: bigint): Promise<User | null> => {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) return null;
 
@@ -29,8 +30,4 @@ const confirmUser = async (id) => {
     data: { confirmed: true },
   });
   return updated;
-};
-
-module.exports = {
-  findByEmail, findByUsername, create, findById, confirmUser,
 };

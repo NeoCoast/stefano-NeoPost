@@ -1,4 +1,4 @@
-const RESULT_CODES = {
+export const RESULT_CODES = {
   SUCCESS: 'SUCCESS',
   NOT_FOUND: 'NOT_FOUND',
   ALREADY_EXISTS: 'ALREADY_EXISTS',
@@ -6,6 +6,8 @@ const RESULT_CODES = {
   FORBIDDEN: 'FORBIDDEN',
   EDIT_WINDOW_EXPIRED: 'EDIT_WINDOW_EXPIRED',
   ERROR: 'ERROR',
-};
+} as const;
 
-module.exports = { RESULT_CODES };
+export type ResultCode = typeof RESULT_CODES[keyof typeof RESULT_CODES];
+
+export const EDIT_WINDOW_MS = 60 * 60 * 1000;
