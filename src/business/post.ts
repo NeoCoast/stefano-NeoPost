@@ -1,22 +1,26 @@
-const { RESULT_CODES } = require('../utils/constants');
-const postDataAccess = require('../dataaccess/post');
+import type { Post, User } from '@prisma/client';
+import { RESULT_CODES, EDIT_WINDOW_MS } from '../utils/constants';
+import * as postDataAccess from '../dataaccess/post';
+import type { CreatePostInput, EditPostInput } from '../types/post';
+import type { BusinessResult } from '../types/common';
 
-const EDIT_WINDOW_MS = 60 * 60 * 1000;
-
-const create = async (data, user) => {
+export const create = async (
+  { title, content }: CreatePostInput,
+  user: User,
+): Promise<BusinessResult<Post>> => {
   try {
-    const post = await postDataAccess.create({
-      title: data.title,
-      content: data.content,
-      userId: user.id,
-    });
+    const post = await postDataAccess.create({ title, content, userId: user.id });
     return { code: RESULT_CODES.SUCCESS, data: post };
   } catch (error) {
     return { code: RESULT_CODES.ERROR, data: error };
   }
 };
 
-const edit = async (id, data, user) => {
+export const edit = async (
+  id: bigint,
+  data: EditPostInput,
+  user: User,
+): Promise<BusinessResult<Post>> => {
   try {
     const post = await postDataAccess.findById(id);
 
@@ -39,5 +43,3 @@ const edit = async (id, data, user) => {
     return { code: RESULT_CODES.ERROR, data: error };
   }
 };
-
-module.exports = { create, edit };
