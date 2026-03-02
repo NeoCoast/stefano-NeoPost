@@ -1,4 +1,4 @@
-const createPostSchema = {
+export const createPostSchema = {
   type: 'object',
   properties: {
     title: { type: 'string', minLength: 1 },
@@ -6,17 +6,15 @@ const createPostSchema = {
   },
   required: ['title', 'content'],
   additionalProperties: false,
-};
+} as const;
 
-const editPostSchema = {
+export const editPostSchema = {
   type: 'object',
   properties: {
     title: { type: 'string', minLength: 1 },
     content: { type: 'string', minLength: 1 },
   },
-  required: [],
+  required: [] as const,
   additionalProperties: false,
   minProperties: 1,
-};
-
-module.exports = { createPostSchema, editPostSchema };
+} as const;

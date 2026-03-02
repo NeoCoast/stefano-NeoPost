@@ -1,4 +1,4 @@
-const signupSchema = {
+export const signupSchema = {
   type: 'object',
   properties: {
     email: { type: 'string', pattern: '^[^@]+@[^@]+\\.[^@]+$' },
@@ -8,9 +8,9 @@ const signupSchema = {
   },
   required: ['email', 'username', 'password'],
   additionalProperties: false,
-};
+} as const;
 
-const signinSchema = {
+export const signinSchema = {
   type: 'object',
   properties: {
     email: { type: 'string', pattern: '^[^@]+@[^@]+\\.[^@]+$' },
@@ -18,6 +18,4 @@ const signinSchema = {
   },
   required: ['email', 'password'],
   additionalProperties: false,
-};
-
-module.exports = { signupSchema, signinSchema };
+} as const;
