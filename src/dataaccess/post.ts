@@ -1,5 +1,6 @@
 import type { Post, Prisma } from '@prisma/client';
-import prisma from '../db/prisma';
+
+import prisma from '@/db/prisma';
 
 export const create = async (data: Prisma.PostUncheckedCreateInput): Promise<Post> => {
   const post = await prisma.post.create({ data });

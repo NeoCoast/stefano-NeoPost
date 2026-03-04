@@ -1,8 +1,9 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy, type IVerifyOptions } from 'passport-local';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import * as userDataAccess from '../dataaccess/user';
-import { verifyPassword } from '../utils/auth';
+
+import * as userDataAccess from '@/dataaccess/user';
+import { verifyPassword } from '@/utils/auth';
 
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },

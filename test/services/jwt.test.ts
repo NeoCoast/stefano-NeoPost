@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import { expect } from 'expect';
 import jwt from 'jsonwebtoken';
-import { generateAuthToken, generateConfirmationToken, verifyToken } from '../../src/services/jwt';
+
+import { generateAuthToken, generateConfirmationToken, verifyToken } from '@/services/jwt';
 
 describe('JWT Service', () => {
   const userId = 42;

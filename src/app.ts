@@ -1,7 +1,8 @@
 import express from 'express';
-import passport from './middlewares/passport';
-import userRoutes from './routes/user';
-import postRoutes from './routes/post';
+
+import passport from '@/middlewares/passport';
+import userRoutes from '@/routes/user';
+import postRoutes from '@/routes/post';
 
 const app = express();
 

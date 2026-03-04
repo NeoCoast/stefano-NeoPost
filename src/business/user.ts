@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt';
-import { RESULT_CODES } from '../utils/constants';
-import * as userDataAccess from '../dataaccess/user';
-import { generateConfirmationToken, verifyToken } from '../services/jwt';
-import { sendConfirmationEmail } from '../services/email';
-import type { SignupInput } from '../types/auth';
-import type { BusinessResult } from '../types/common';
+
+import { RESULT_CODES } from '@/utils/constants';
+import * as userDataAccess from '@/dataaccess/user';
+import { generateConfirmationToken, verifyToken } from '@/services/jwt';
+import { sendConfirmationEmail } from '@/services/email';
+import type { SignupInput } from '@/types/auth';
+import type { BusinessResult } from '@/types/common';
 
 export const signup = async (data: SignupInput): Promise<BusinessResult<{ message: string }>> => {
   try {

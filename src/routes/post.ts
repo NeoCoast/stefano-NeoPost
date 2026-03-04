@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import passport from '../middlewares/passport';
-import { RESULT_CODES } from '../utils/constants';
-import * as postBusiness from '../business/post';
-import { validateInput } from '../middlewares/validate-input';
-import { createPostSchema, editPostSchema } from './validators/post-body';
-import type { CreatePostInput, EditPostInput } from '../types/post';
+
+import { RESULT_CODES } from '@/utils/constants';
+import * as postBusiness from '@/business/post';
+import passport from '@/middlewares/passport';
+import { validateInput } from '@/middlewares/validate-input';
+import { createPostSchema, editPostSchema } from '@/routes/validators/post-body';
+import type { CreatePostInput, EditPostInput } from '@/types/post';
 
 const router = Router();
 

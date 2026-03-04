@@ -1,9 +1,5 @@
-export interface CreatePostInput {
-  title: string;
-  content: string;
-}
+import type { Prisma } from '@prisma/client';
 
-export interface EditPostInput {
-  title?: string;
-  content?: string;
-}
+export type CreatePostInput = Pick<Prisma.PostUncheckedCreateInput, 'title' | 'content'>;
+
+export type EditPostInput = Partial<CreatePostInput>;

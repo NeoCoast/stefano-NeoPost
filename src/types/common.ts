@@ -1,4 +1,4 @@
-import type { ResultCode } from '../utils/constants';
+import type { ResultCode } from '@/utils/constants';
 
 export type BusinessResult<T> =
   | { code: 'SUCCESS'; data: T }

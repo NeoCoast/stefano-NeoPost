@@ -217,6 +217,8 @@ These are patterns observed while teaching. Future teachers should use these to 
 - Prisma generated types — `User`, `Post`, `Prisma.UserCreateInput`, auto-generated from schema
 - `Awaited<ReturnType<typeof fn>>` — deriving types from function returns
 - Promises — three states, `await` extracts value, `async` always returns Promise, `.then()` chains, caching pattern
+- Path aliases (`@/`) — tsconfig `baseUrl` + `paths`, why absolute-ish imports beat relative `../../`, `@/` vs `@org/` scoped packages
+- Import organization — external packages first, blank line, then internal imports; same principle as Ruby gems-before-own-files
 
 ---
 

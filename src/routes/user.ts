@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import type { Request, Response, NextFunction } from 'express';
-import passport from '../middlewares/passport';
-import { generateAuthToken } from '../services/jwt';
-import { RESULT_CODES } from '../utils/constants';
-import * as userBusiness from '../business/user';
-import { validateInput } from '../middlewares/validate-input';
-import { signupSchema, signinSchema } from './validators/user-body';
-import type { SignupInput } from '../types/auth';
+
+import { RESULT_CODES } from '@/utils/constants';
+import * as userBusiness from '@/business/user';
+import { generateAuthToken } from '@/services/jwt';
+import passport from '@/middlewares/passport';
+import { validateInput } from '@/middlewares/validate-input';
+import { signupSchema, signinSchema } from '@/routes/validators/user-body';
+import type { SignupInput } from '@/types/auth';
 
 const router = Router();
 

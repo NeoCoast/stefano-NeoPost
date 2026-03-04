@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { expect } from 'expect';
-import { sendConfirmationEmail } from '../../src/services/email';
+
+import { sendConfirmationEmail } from '@/services/email';
 
 describe('Email Service', () => {
   describe('sendConfirmationEmail', () => {

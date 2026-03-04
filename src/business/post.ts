@@ -1,8 +1,9 @@
 import type { Post, User } from '@prisma/client';
-import { RESULT_CODES, EDIT_WINDOW_MS } from '../utils/constants';
-import * as postDataAccess from '../dataaccess/post';
-import type { CreatePostInput, EditPostInput } from '../types/post';
-import type { BusinessResult } from '../types/common';
+
+import { RESULT_CODES, EDIT_WINDOW_MS } from '@/utils/constants';
+import * as postDataAccess from '@/dataaccess/post';
+import type { CreatePostInput, EditPostInput } from '@/types/post';
+import type { BusinessResult } from '@/types/common';
 
 export const create = async (
   { title, content }: CreatePostInput,

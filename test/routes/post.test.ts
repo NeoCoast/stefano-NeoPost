@@ -3,9 +3,10 @@ import request from 'supertest';
 import { expect } from 'expect';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
-import app from '../../src/app';
-import prisma from '../../src/db/prisma';
-import { generateAuthToken } from '../../src/services/jwt';
+
+import app from '@/app';
+import prisma from '@/db/prisma';
+import { generateAuthToken } from '@/services/jwt';
 
 const createConfirmedUser = async () => {
   const hashedPassword = await bcrypt.hash('testpass123', 10);

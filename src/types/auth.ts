@@ -1,11 +1,4 @@
-export interface SignupInput {
-  email: string;
-  username: string;
-  password: string;
-  birthday?: string;
-}
+import type { Prisma } from '@prisma/client';
 
-export interface SigninInput {
-  email: string;
-  password: string;
-}
+export type SignupInput = Pick<Prisma.UserCreateInput, 'email' | 'username' | 'password' | 'birthday'>;
+

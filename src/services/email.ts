@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
-import { confirmationEmailHtml } from '../templates/confirmation-email';
+
+import { confirmationEmailHtml } from '@/templates/confirmation-email';
 
 let transporterPromise: Promise<Transporter> | null = null;
 

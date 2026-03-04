@@ -3,8 +3,9 @@ import request from 'supertest';
 import { expect } from 'expect';
 import { faker } from '@faker-js/faker';
 import jwt from 'jsonwebtoken';
-import app from '../../src/app';
-import prisma from '../../src/db/prisma';
+
+import app from '@/app';
+import prisma from '@/db/prisma';
 
 describe('POST /api/users/signup', () => {
   const validUser = {

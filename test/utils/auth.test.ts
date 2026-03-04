@@ -1,6 +1,7 @@
 import { expect } from 'expect';
 import bcrypt from 'bcrypt';
-import { verifyPassword } from '../../src/utils/auth';
+
+import { verifyPassword } from '@/utils/auth';
 
 describe('verifyPassword', () => {
   let hashedPassword: string;
