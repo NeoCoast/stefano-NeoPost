@@ -2,24 +2,20 @@ import type { User, Prisma } from '@prisma/client';
 
 import prisma from '@/db/prisma';
 
-export const findByEmail = async (email: string): Promise<User | null> => {
-  const user = await prisma.user.findUnique({ where: { email } });
-  return user;
+export const findByEmail = (email: string): Promise<User | null> => {
+  return prisma.user.findUnique({ where: { email } });
 };
 
-export const findByUsername = async (username: string): Promise<User | null> => {
-  const user = await prisma.user.findUnique({ where: { username } });
-  return user;
+export const findByUsername = (username: string): Promise<User | null> => {
+  return prisma.user.findUnique({ where: { username } });
 };
 
-export const create = async (data: Prisma.UserCreateInput): Promise<User> => {
-  const user = await prisma.user.create({ data });
-  return user;
+export const create = (data: Prisma.UserCreateInput): Promise<User> => {
+  return prisma.user.create({ data });
 };
 
-export const findById = async (id: bigint): Promise<User | null> => {
-  const user = await prisma.user.findUnique({ where: { id } });
-  return user;
+export const findById = (id: bigint): Promise<User | null> => {
+  return prisma.user.findUnique({ where: { id } });
 };
 
 export const confirmUser = async (id: bigint): Promise<User | null> => {
