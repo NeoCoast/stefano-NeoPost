@@ -5,9 +5,9 @@ import * as userDataAccess from '@/dataaccess/user';
 import { generateConfirmationToken, verifyToken } from '@/services/jwt';
 import { sendConfirmationEmail } from '@/services/email';
 import type { SignupInput } from '@/types/auth';
-import type { BusinessResult } from '@/types/common';
+import type { ServiceResult } from '@/types/common';
 
-export const signup = async (data: SignupInput): Promise<BusinessResult<{ message: string }>> => {
+export const signup = async (data: SignupInput): Promise<ServiceResult<{ message: string }>> => {
   try {
     const existingEmail = await userDataAccess.findByEmail(data.email);
     if (existingEmail) {
@@ -34,7 +34,7 @@ export const signup = async (data: SignupInput): Promise<BusinessResult<{ messag
   }
 };
 
-export const confirmEmail = async (token: string): Promise<BusinessResult<{ message: string }>> => {
+export const confirmEmail = async (token: string): Promise<ServiceResult<{ message: string }>> => {
   try {
     const payload = verifyToken(token, 'email-confirmation');
     const user = await userDataAccess.confirmUser(BigInt(payload.userId));

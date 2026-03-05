@@ -3,12 +3,12 @@ import type { Post, User } from '@prisma/client';
 import { RESULT_CODES, EDIT_WINDOW_MS } from '@/utils/constants';
 import * as postDataAccess from '@/dataaccess/post';
 import type { CreatePostInput, EditPostInput } from '@/types/post';
-import type { BusinessResult } from '@/types/common';
+import type { ServiceResult } from '@/types/common';
 
 export const create = async (
   { title, content }: CreatePostInput,
   user: User,
-): Promise<BusinessResult<Post>> => {
+): Promise<ServiceResult<Post>> => {
   try {
     const post = await postDataAccess.create({ title, content, userId: user.id });
     return { code: RESULT_CODES.SUCCESS, data: post };
@@ -21,7 +21,7 @@ export const edit = async (
   id: bigint,
   data: EditPostInput,
   user: User,
-): Promise<BusinessResult<Post>> => {
+): Promise<ServiceResult<Post>> => {
   try {
     const post = await postDataAccess.findById(id);
 
