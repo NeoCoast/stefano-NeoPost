@@ -2,7 +2,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy, type IVerifyOptions } from 'passport-local';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 
-import * as userDataAccess from '@/dataaccess/user';
+import UserModel from '@/models/UserModel';
 import { verifyPassword } from '@/utils/auth';
 
 passport.use(new LocalStrategy(
@@ -11,10 +11,14 @@ passport.use(new LocalStrategy(
   async (
     email: string,
     password: string,
-    done: (error: unknown, user?: Express.User | false, options?: IVerifyOptions) => void,
+    done: (
+      error: unknown,
+      user?: Express.User | false,
+      options?: IVerifyOptions,
+    ) => void,
   ) => {
     try {
-      const user = await userDataAccess.findByEmail(email);
+      const user = await UserModel.findByEmail(email);
       if (!user) {
         return done(null, false, { message: 'Invalid credentials' });
       }
@@ -39,7 +43,7 @@ passport.use(new JwtStrategy(
   },
   async (payload: { userId: number }, done) => {
     try {
-      const user = await userDataAccess.findById(BigInt(payload.userId));
+      const user = await UserModel.findById(BigInt(payload.userId));
       if (!user) {
         return done(null, false);
       }

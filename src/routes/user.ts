@@ -5,8 +5,7 @@ import { RESULT_CODES } from '@/utils/constants';
 import type { SignupInput } from '@/types/auth';
 
 import * as userBusiness from '@/business/user';
-import { generateAuthToken } from '@/services/jwt';
-
+import JwtService from '@/services/JwtService';
 import passport from '@/middlewares/passport';
 import { validateInput } from '@/middlewares/validate-input';
 
@@ -67,7 +66,7 @@ router.post('/signin', validateInput(signinSchema), (req: Request, res: Response
       return res.status(403).json({ message: 'Please confirm your email before signing in' });
     }
 
-    const token = generateAuthToken(Number(user.id));
+    const token = JwtService.generateAuthToken(Number(user.id));
     const { password: _, ...userData } = user;
     return res.json({ token, user: { ...userData, id: Number(userData.id) } });
   })(req, res, next);

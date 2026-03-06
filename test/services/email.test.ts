@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { expect } from 'expect';
 
-import { sendConfirmationEmail } from '@/services/email';
+import EmailService from '@/services/EmailService';
 
 describe('Email Service', () => {
   describe('sendConfirmationEmail', () => {
@@ -9,7 +9,7 @@ describe('Email Service', () => {
 
     before(async function () {
       this.timeout(10000);
-      emailInfo = await sendConfirmationEmail('test@example.com', 'fake-token-123');
+      emailInfo = await EmailService.sendConfirmationEmail('test@example.com', 'fake-token-123');
     });
 
     it('should send an email and return info with messageId', () => {
