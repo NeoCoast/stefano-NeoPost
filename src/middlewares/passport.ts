@@ -8,7 +8,11 @@ import { verifyPassword } from '@/utils/auth';
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
 
-  async (email: string, password: string, done: (error: unknown, user?: Express.User | false, options?: IVerifyOptions) => void) => {
+  async (
+    email: string,
+    password: string,
+    done: (error: unknown, user?: Express.User | false, options?: IVerifyOptions) => void,
+  ) => {
     try {
       const user = await userDataAccess.findByEmail(email);
       if (!user) {

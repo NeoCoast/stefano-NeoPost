@@ -46,6 +46,7 @@ describe('POST /api/users/signup', () => {
     const response = await request(app)
       .post('/api/users/signup')
       .send(validUser);
+
     expect(response.status).toBe(409);
   });
 
@@ -53,6 +54,7 @@ describe('POST /api/users/signup', () => {
     const response = await request(app)
       .post('/api/users/signup')
       .send({ email: 'not-an-email' });
+
     expect(response.status).toBe(400);
   });
 });
@@ -96,6 +98,7 @@ describe('GET /api/users/confirm', () => {
   it('should return 400 for invalid token', async () => {
     const response = await request(app)
       .get('/api/users/confirm?token=invalid-token');
+
     expect(response.status).toBe(400);
   });
 
@@ -108,12 +111,14 @@ describe('GET /api/users/confirm', () => {
 
     const response = await request(app)
       .get(`/api/users/confirm?token=${authToken}`);
+
     expect(response.status).toBe(400);
   });
 
   it('should return 400 when no token provided', async () => {
     const response = await request(app)
       .get('/api/users/confirm');
+
     expect(response.status).toBe(400);
   });
 });
@@ -155,6 +160,7 @@ describe('POST /api/users/signin', () => {
     const response = await request(app)
       .post('/api/users/signin')
       .send({ email: testUser.email, password: 'wrongpassword' });
+
     expect(response.status).toBe(401);
   });
 
@@ -162,6 +168,7 @@ describe('POST /api/users/signin', () => {
     const response = await request(app)
       .post('/api/users/signin')
       .send({ email: 'nobody@example.com', password: 'whatever' });
+
     expect(response.status).toBe(401);
   });
 
@@ -169,6 +176,7 @@ describe('POST /api/users/signin', () => {
     const response = await request(app)
       .post('/api/users/signin')
       .send({ email: testUser.email });
+
     expect(response.status).toBe(400);
   });
 
@@ -226,12 +234,14 @@ describe('GET /api/users/me', () => {
     const response = await request(app)
       .get('/api/users/me')
       .set('Authorization', `Bearer ${authToken}`);
+
     expect(response.status).toBe(204);
   });
 
   it('should return 401 without a token', async () => {
     const response = await request(app)
       .get('/api/users/me');
+
     expect(response.status).toBe(401);
   });
 
@@ -239,6 +249,7 @@ describe('GET /api/users/me', () => {
     const response = await request(app)
       .get('/api/users/me')
       .set('Authorization', 'Bearer invalid-token-here');
+
     expect(response.status).toBe(401);
   });
 
@@ -252,6 +263,7 @@ describe('GET /api/users/me', () => {
     const response = await request(app)
       .get('/api/users/me')
       .set('Authorization', `Bearer ${confirmToken}`);
+
     expect(response.status).toBe(401);
   });
 });

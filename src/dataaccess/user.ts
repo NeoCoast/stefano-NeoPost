@@ -10,8 +10,9 @@ export const findByUsername = (username: string): Promise<User | null> => {
   return prisma.user.findUnique({ where: { username } });
 };
 
-export const create = (data: Prisma.UserCreateInput): Promise<User> => {
-  return prisma.user.create({ data });
+export const create = async (data: Prisma.UserCreateInput): Promise<Omit<User, 'password'>> => {
+  const { password: _, ...user } = await prisma.user.create({ data });
+  return user;
 };
 
 export const findById = (id: bigint): Promise<User | null> => {
