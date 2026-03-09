@@ -1,13 +1,18 @@
-const passport = require('passport');
-const LocalStrategy = require('passport-local');
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const userDataAccess = require('../dataaccess/user');
-const { verifyPassword } = require('../utils/auth');
+import passport from 'passport';
+import { Strategy as LocalStrategy, type IVerifyOptions } from 'passport-local';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+
+import * as userDataAccess from '@/dataaccess/user';
+import { verifyPassword } from '@/utils/auth';
 
 passport.use(new LocalStrategy(
   { usernameField: 'email', passwordField: 'password' },
 
-  async (email, password, done) => {
+  async (
+    email: string,
+    password: string,
+    done: (error: unknown, user?: Express.User | false, options?: IVerifyOptions) => void,
+  ) => {
     try {
       const user = await userDataAccess.findByEmail(email);
       if (!user) {
@@ -29,12 +34,12 @@ passport.use(new LocalStrategy(
 passport.use(new JwtStrategy(
   {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: process.env.JWT_SECRET,
+    secretOrKey: process.env.JWT_SECRET!,
     audience: 'api',
   },
-  async (payload, done) => {
+  async (payload: { userId: number }, done) => {
     try {
-      const user = await userDataAccess.findById(payload.userId);
+      const user = await userDataAccess.findById(BigInt(payload.userId));
       if (!user) {
         return done(null, false);
       }
@@ -45,4 +50,4 @@ passport.use(new JwtStrategy(
   },
 ));
 
-module.exports = passport;
+export default passport;

@@ -198,6 +198,27 @@ These are patterns observed while teaching. Future teachers should use these to 
 - dotenv — knows why secrets go in env vars, `.env` + `.env.example` pattern, why dotenv must load first
 - Nodemailer — understands SMTP transports, Ethereal for dev, Brevo SMTP for prod, lazy transporter init
 - passport-jwt — knows `ExtractJwt.fromAuthHeaderAsBearerToken()`, `Authorization: Bearer` header, audience enforcement, same gatekeeper pattern as `validateInput(schema)`
+- TypeScript basics — understands superset of JS, types erased at runtime, `strict: true`
+- TypeScript toolchain — knows `tsc` (type checker), `tsx` (runtime), `@types/*` packages
+- ES modules — `import`/`export` vs CommonJS `require`/`module.exports`, CJS/ESM interop pitfalls
+- Type annotations — function params, return types, `Promise<T>`
+- `as const` — literal types vs widened `string`, why it matters for unions
+- `typeof` + `keyof` — deriving types from runtime objects
+- `interface` — object shape definitions, optional fields (`?`), `extends` for composition
+- Generics (`<T>`) — type placeholders, `BusinessResult<T>`, `Promise<T>`, `Array<T>`
+- Discriminated unions — tag field narrowing, `BusinessResult` pattern, early-return narrowing
+- `Exclude<>` — filtering union members
+- `import type` — type-only imports, erased at runtime
+- `unknown` vs `any` — type-safe "don't know" vs turning off type checking
+- Non-null assertion `!` — overriding nullability with external guarantees
+- Type assertion `as` — casting with external validation (AJV, JWT decode)
+- `declare global` — declaration merging for Express `req.user`
+- Express 5 types — `Request`, `Response`, `NextFunction`, params as `string | string[]`
+- Prisma generated types — `User`, `Post`, `Prisma.UserCreateInput`, auto-generated from schema
+- `Awaited<ReturnType<typeof fn>>` — deriving types from function returns
+- Promises — three states, `await` extracts value, `async` always returns Promise, `.then()` chains, caching pattern
+- Path aliases (`@/`) — tsconfig `baseUrl` + `paths`, why absolute-ish imports beat relative `../../`, `@/` vs `@org/` scoped packages
+- Import organization — external packages first, blank line, then internal imports; same principle as Ruby gems-before-own-files
 
 ---
 

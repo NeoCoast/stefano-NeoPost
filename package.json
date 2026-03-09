@@ -4,18 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/bin/www.js",
-    "start": "node src/bin/www.js",
-    "test": "mocha --recursive --exit test/",
-    "test:watch": "mocha --recursive --exit --watch test/",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
+    "dev": "tsx watch src/bin/www.ts",
+    "start": "tsx src/bin/www.ts",
+    "test": "mocha --require tsx --recursive --exit 'test/**/*.test.ts'",
+    "test:watch": "mocha --require tsx --recursive --exit --watch 'test/**/*.test.ts'",
+    "lint": "eslint src/ test/",
+    "lint:fix": "eslint src/ test/ --fix",
+    "typecheck": "tsc",
     "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@prisma/client": "^6.19.2",
     "ajv": "^8.17.1",
@@ -33,12 +34,25 @@
   "devDependencies": {
     "@eslint/js": "^9.39.0",
     "@faker-js/faker": "^10.3.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.3.3",
+    "@types/nodemailer": "^7.0.11",
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/passport-local": "^1.0.38",
+    "@types/supertest": "^7.2.0",
     "eslint": "^9.39.2",
     "expect": "^30.2.0",
     "globals": "^17.3.0",
     "husky": "^9.1.7",
     "mocha": "^11.3.0",
     "prisma": "^6.19.2",
-    "supertest": "^7.2.2"
+    "supertest": "^7.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
   }
 }

@@ -1,6 +1,6 @@
 # NeoPost App
 
-A REST API built with Node.js, Express, Sequelize, and PostgreSQL. Includes user authentication with bcrypt and Passport, request validation with AJV, and a full test suite with Mocha.
+A REST API built with **TypeScript**, Node.js, Express 5, Prisma, and PostgreSQL. Includes user authentication with bcrypt, Passport, and JWT, request validation with AJV, and a full test suite with Mocha.
 
 ## Prerequisites
 
@@ -15,21 +15,46 @@ A REST API built with Node.js, Express, Sequelize, and PostgreSQL. Includes user
 npm install
 ```
 
-**2. Start the database**
+**2. Configure environment variables**
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and fill in the required values:
+
+```
+NODE_ENV=development
+JWT_SECRET=pick-a-secret-string
+BREVO_SMTP_HOST=smtp-relay.brevo.com
+BREVO_SMTP_PORT=587
+BREVO_SMTP_USER=
+BREVO_SMTP_PASS=
+APP_URL=http://localhost:3000
+DATABASE_URL=postgresql://dev:dev@localhost:5434/nodejs_training?schema=public
+```
+
+- `JWT_SECRET` — any random string, used to sign tokens.
+- `BREVO_SMTP_USER` / `BREVO_SMTP_PASS` — only needed if you want production emails. In development, emails are previewed via [Ethereal](https://ethereal.email).
+- `DATABASE_URL` — must match the Docker Compose credentials and port below.
+
+**3. Start the database**
 
 ```bash
 docker compose up -d
 ```
 
-This starts PostgreSQL on port `5434`.
+This starts PostgreSQL 16 on port `5434`.
 
-**3. Run migrations**
+**4. Run database migrations**
 
 ```bash
-npx sequelize-cli db:migrate
+npx prisma migrate dev
 ```
 
-**4. Start the server**
+This creates the tables and generates the Prisma Client.
+
+**5. Start the server**
 
 ```bash
 npm run dev
@@ -41,10 +66,11 @@ The server runs on `http://localhost:3000`.
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start with nodemon (auto-restart on save) |
-| `npm start` | Start without nodemon |
-| `npm test` | Run tests |
+| `npm run dev` | Start with tsx watch (auto-restart on save) |
+| `npm start` | Start compiled JS (`node dist/bin/www.js`) |
+| `npm test` | Run tests with Mocha + tsx |
 | `npm run test:watch` | Run tests in watch mode |
+| `npm run typecheck` | Type-check with `tsc --noEmit` |
 | `npm run lint` | Check for lint errors |
 | `npm run lint:fix` | Auto-fix lint errors |
 
@@ -52,47 +78,52 @@ The server runs on `http://localhost:3000`.
 
 ```
 src/
-├── bin/www.js          # HTTP server entry point
-├── app.js              # Express app setup
-├── routes/             # Route handlers
-│   └── validators/     # AJV JSON schemas
-├── business/           # Business logic layer
-├── dataaccess/         # Database queries (Sequelize)
+├── bin/www.ts           # HTTP server entry point
+├── app.ts               # Express app setup
+├── routes/              # Route handlers
+│   └── validators/      # AJV JSON schemas
+├── business/            # Business logic layer
+├── dataaccess/          # Database queries (Prisma)
 ├── db/
-│   ├── models/         # Sequelize models
-│   ├── migrations/     # Database migrations
-│   └── config.js       # Database configuration
-├── middlewares/        # Express middleware (passport, validation)
-└── utils/              # Shared constants
+│   └── prisma.ts        # PrismaClient singleton
+├── middlewares/         # Express middleware (passport, validation)
+├── services/            # JWT and email services
+├── templates/           # Email HTML templates
+├── types/               # Shared TypeScript types and declarations
+└── utils/               # Shared constants
+prisma/
+├── schema.prisma        # Database schema
+└── migrations/          # Migration history
 test/
-├── models/             # Model unit tests
-└── routes/             # Route integration tests
+├── routes/              # Route integration tests
+├── services/            # Service unit tests
+└── utils/               # Utility unit tests
 ```
 
 ## Tech Stack
 
 | Tool | Purpose |
 |------|---------|
-| Express | HTTP server and routing |
-| Sequelize | ORM (PostgreSQL) |
+| TypeScript | Static type checking (strict mode) |
+| tsx | TypeScript runtime for development |
+| Express 5 | HTTP server and routing |
+| Prisma | ORM (PostgreSQL) |
 | AJV | Request body validation |
 | bcrypt | Password hashing |
-| Passport + passport-local | Authentication |
-| Mocha + supertest | Testing |
-| ESLint (Airbnb base) | Code quality |
-| Husky | Pre-commit lint enforcement |
+| Passport (local + JWT) | Authentication |
+| jsonwebtoken | Token generation and verification |
+| Nodemailer | Confirmation emails |
+| Mocha + Supertest | Testing (with tsx loader) |
+| ESLint + typescript-eslint | Code quality and type-aware linting |
+| Husky | Pre-commit hooks (lint + tests) |
 | Docker Compose | Local PostgreSQL database |
 
 ## Database
 
 The development database runs in Docker:
 
-- **Host:** `127.0.0.1:5434`
+- **Host:** `localhost:5434`
 - **Database:** `nodejs_training`
-- **User/Password:** `dev` / `dev`
+- **User / Password:** `dev` / `dev`
 
-Tests use a separate database (`nodejs_training_test`) configurable via environment variables:
-
-```
-DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
-```
+Connection string: `postgresql://dev:dev@localhost:5434/nodejs_training?schema=public`

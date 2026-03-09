@@ -1,11 +1,12 @@
-require('dotenv').config();
-const request = require('supertest');
-const { expect } = require('expect');
-const { faker } = require('@faker-js/faker');
-const bcrypt = require('bcrypt');
-const app = require('../../src/app');
-const prisma = require('../../src/db/prisma');
-const { generateAuthToken } = require('../../src/services/jwt');
+import 'dotenv/config';
+import request from 'supertest';
+import { expect } from 'expect';
+import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
+
+import app from '@/app';
+import prisma from '@/db/prisma';
+import { generateAuthToken } from '@/services/jwt';
 
 const createConfirmedUser = async () => {
   const hashedPassword = await bcrypt.hash('testpass123', 10);
@@ -22,9 +23,9 @@ const createConfirmedUser = async () => {
 };
 
 describe('POST /api/posts', () => {
-  let authToken;
-  let testUser;
-  const createdPostIds = [];
+  let authToken: string;
+  let testUser: Awaited<ReturnType<typeof prisma.user.create>>;
+  const createdPostIds: bigint[] = [];
 
   before(async () => {
     const result = await createConfirmedUser();
@@ -65,7 +66,6 @@ describe('POST /api/posts', () => {
     const response = await request(app)
       .post('/api/posts')
       .send({ title: 'test', content: 'test' });
-
     expect(response.status).toBe(401);
   });
 
@@ -74,7 +74,6 @@ describe('POST /api/posts', () => {
       .post('/api/posts')
       .set('Authorization', `Bearer ${authToken}`)
       .send({ content: 'some content' });
-
     expect(response.status).toBe(400);
   });
 
@@ -83,16 +82,15 @@ describe('POST /api/posts', () => {
       .post('/api/posts')
       .set('Authorization', `Bearer ${authToken}`)
       .send({});
-
     expect(response.status).toBe(400);
   });
 });
 
 describe('PATCH /api/posts/:id', () => {
-  let authToken;
-  let otherAuthToken;
-  let testUser;
-  let otherUser;
+  let authToken: string;
+  let otherAuthToken: string;
+  let testUser: Awaited<ReturnType<typeof prisma.user.create>>;
+  let otherUser: Awaited<ReturnType<typeof prisma.user.create>>;
 
   before(async () => {
     const result = await createConfirmedUser();
@@ -153,7 +151,6 @@ describe('PATCH /api/posts/:id', () => {
       .send({ title: 'New' });
 
     expect(response.status).toBe(401);
-
     await prisma.post.delete({ where: { id: post.id } });
   });
 
@@ -162,7 +159,6 @@ describe('PATCH /api/posts/:id', () => {
       .patch('/api/posts/999999')
       .set('Authorization', `Bearer ${authToken}`)
       .send({ title: 'New' });
-
     expect(response.status).toBe(404);
   });
 
@@ -177,7 +173,6 @@ describe('PATCH /api/posts/:id', () => {
       .send({ title: 'Hacked' });
 
     expect(response.status).toBe(403);
-
     await prisma.post.delete({ where: { id: post.id } });
   });
 
@@ -198,7 +193,6 @@ describe('PATCH /api/posts/:id', () => {
       .send({ title: 'Too Late' });
 
     expect(response.status).toBe(403);
-
     await prisma.post.delete({ where: { id: post.id } });
   });
 
@@ -213,7 +207,6 @@ describe('PATCH /api/posts/:id', () => {
       .send({});
 
     expect(response.status).toBe(400);
-
     await prisma.post.delete({ where: { id: post.id } });
   });
 });

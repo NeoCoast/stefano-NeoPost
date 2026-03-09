@@ -1,10 +1,13 @@
-const bcrypt = require('bcrypt');
-const { RESULT_CODES } = require('../utils/constants');
-const userDataAccess = require('../dataaccess/user');
-const { generateConfirmationToken, verifyToken } = require('../services/jwt');
-const { sendConfirmationEmail } = require('../services/email');
+import bcrypt from 'bcrypt';
 
-const signup = async (data) => {
+import { RESULT_CODES } from '@/utils/constants';
+import * as userDataAccess from '@/dataaccess/user';
+import { generateConfirmationToken, verifyToken } from '@/services/jwt';
+import { sendConfirmationEmail } from '@/services/email';
+import type { SignupInput } from '@/types/auth';
+import type { BusinessResult } from '@/types/common';
+
+export const signup = async (data: SignupInput): Promise<BusinessResult<{ message: string }>> => {
   try {
     const existingEmail = await userDataAccess.findByEmail(data.email);
     if (existingEmail) {
@@ -25,15 +28,16 @@ const signup = async (data) => {
 
     return { code: RESULT_CODES.SUCCESS, data: { message: 'Check your email to confirm your account' } };
   } catch (error) {
-    console.error('Error creating user:', error.message);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error creating user:', message);
     return { code: RESULT_CODES.ERROR, data: error };
   }
 };
 
-const confirmEmail = async (token) => {
+export const confirmEmail = async (token: string): Promise<BusinessResult<{ message: string }>> => {
   try {
     const payload = verifyToken(token, 'email-confirmation');
-    const user = await userDataAccess.confirmUser(payload.userId);
+    const user = await userDataAccess.confirmUser(BigInt(payload.userId));
 
     if (!user) {
       return { code: RESULT_CODES.NOT_FOUND, data: null };
@@ -44,5 +48,3 @@ const confirmEmail = async (token) => {
     return { code: RESULT_CODES.ERROR, data: { message: 'Invalid or expired token' } };
   }
 };
-
-module.exports = { signup, confirmEmail };

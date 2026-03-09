@@ -1,11 +1,12 @@
-const Ajv = require('ajv');
+import Ajv, { type Schema } from 'ajv';
+import type { Request, Response, NextFunction } from 'express';
 
 const ajv = new Ajv();
 
-const validateInput = (schema) => {
+export const validateInput = (schema: Schema) => {
   const validate = ajv.compile(schema);
 
-  return (req, res, next) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const valid = validate(req.body);
 
     if (!valid) {
@@ -16,5 +17,3 @@ const validateInput = (schema) => {
     next();
   };
 };
-
-module.exports = { validateInput };

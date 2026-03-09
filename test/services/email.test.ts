@@ -1,10 +1,11 @@
-require('dotenv').config();
-const { expect } = require('expect');
-const { sendConfirmationEmail } = require('../../src/services/email');
+import 'dotenv/config';
+import { expect } from 'expect';
+
+import { sendConfirmationEmail } from '@/services/email';
 
 describe('Email Service', () => {
   describe('sendConfirmationEmail', () => {
-    let emailInfo;
+    let emailInfo: { messageId: string; previewUrl: string | null };
 
     before(async function () {
       this.timeout(10000);

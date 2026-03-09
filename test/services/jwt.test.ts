@@ -1,7 +1,8 @@
-require('dotenv').config();
-const { expect } = require('expect');
-const jwt = require('jsonwebtoken');
-const { generateAuthToken, generateConfirmationToken, verifyToken } = require('../../src/services/jwt');
+import 'dotenv/config';
+import { expect } from 'expect';
+import jwt from 'jsonwebtoken';
+
+import { generateAuthToken, generateConfirmationToken, verifyToken } from '@/services/jwt';
 
 describe('JWT Service', () => {
   const userId = 42;
@@ -15,14 +16,14 @@ describe('JWT Service', () => {
 
     it('should contain userId and aud: api in the payload', () => {
       const token = generateAuthToken(userId);
-      const decoded = jwt.decode(token);
+      const decoded = jwt.decode(token) as jwt.JwtPayload;
       expect(decoded.userId).toBe(userId);
       expect(decoded.aud).toBe('api');
     });
 
     it('should have an expiration', () => {
       const token = generateAuthToken(userId);
-      const decoded = jwt.decode(token);
+      const decoded = jwt.decode(token) as jwt.JwtPayload;
       expect(decoded.exp).toBeDefined();
     });
   });
@@ -36,7 +37,7 @@ describe('JWT Service', () => {
 
     it('should contain userId and aud: email-confirmation in the payload', () => {
       const token = generateConfirmationToken(userId);
-      const decoded = jwt.decode(token);
+      const decoded = jwt.decode(token) as jwt.JwtPayload;
       expect(decoded.userId).toBe(userId);
       expect(decoded.aud).toBe('email-confirmation');
     });
@@ -63,7 +64,7 @@ describe('JWT Service', () => {
     it('should reject an expired token', () => {
       const token = jwt.sign(
         { userId },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET!,
         { expiresIn: '0s', audience: 'api' },
       );
       expect(() => verifyToken(token, 'api')).toThrow();
