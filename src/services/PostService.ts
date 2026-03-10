@@ -45,6 +45,25 @@ class PostService {
       return { code: RESULT_CODES.ERROR, data: error };
     }
   }
+
+  async remove(id: bigint, user: User): Promise<ServiceResult<null>> {
+    try {
+      const post = await PostModel.findById(id);
+
+      if (!post) {
+        return { code: RESULT_CODES.NOT_FOUND, data: null };
+      }
+
+      if (post.userId !== user.id) {
+        return { code: RESULT_CODES.FORBIDDEN, data: null };
+      }
+
+      await PostModel.softDelete(id);
+      return { code: RESULT_CODES.SUCCESS, data: null };
+    } catch (error) {
+      return { code: RESULT_CODES.ERROR, data: error };
+    }
+  }
 }
 
 export default PostService;
