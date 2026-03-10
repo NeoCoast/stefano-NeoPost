@@ -219,6 +219,11 @@ These are patterns observed while teaching. Future teachers should use these to 
 - Promises — three states, `await` extracts value, `async` always returns Promise, `.then()` chains, caching pattern
 - Path aliases (`@/`) — tsconfig `baseUrl` + `paths`, why absolute-ish imports beat relative `../../`, `@/` vs `@org/` scoped packages
 - Import organization — external packages first, blank line, then internal imports; same principle as Ruby gems-before-own-files
+- Classes with static methods — used for Models (stateless Prisma wrappers) and utility services (JwtService, EmailService); acts as a namespace with growth potential (private, inheritance)
+- Classes with instance methods — used for business Services (UserService, PostService) and Controllers; enables future DI through constructor params
+- `.bind(this)` in constructors — Express strips `this` from callbacks; `.bind()` creates a new function with `this` permanently locked; only needed when a framework calls methods as standalone functions
+- MVC + Services pattern — Route → Controller → Service → Model, each layer has one job; controllers handle HTTP, services handle business logic, models handle data access
+- `private` class members — encapsulating internal state (`transporterPromise`, service instances); prevents external access to implementation details
 
 ---
 

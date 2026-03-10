@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 
 import app from '@/app';
 import prisma from '@/db/prisma';
-import { generateAuthToken } from '@/services/jwt';
+import JwtService from '@/services/JwtService';
 
 const createConfirmedUser = async () => {
   const hashedPassword = await bcrypt.hash('testpass123', 10);
@@ -18,7 +18,7 @@ const createConfirmedUser = async () => {
       confirmed: true,
     },
   });
-  const token = generateAuthToken(Number(user.id));
+  const token = JwtService.generateAuthToken(Number(user.id));
   return { user, token };
 };
 
