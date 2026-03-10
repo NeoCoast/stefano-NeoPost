@@ -1,9 +1,10 @@
-const { expect } = require('expect');
-const bcrypt = require('bcrypt');
-const { verifyPassword } = require('../../src/utils/auth');
+import { expect } from 'expect';
+import bcrypt from 'bcrypt';
+
+import { verifyPassword } from '@/utils/auth';
 
 describe('verifyPassword', () => {
-  let hashedPassword;
+  let hashedPassword: string;
 
   before(async () => {
     hashedPassword = await bcrypt.hash('testpass123', 10);

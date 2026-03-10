@@ -198,6 +198,32 @@ These are patterns observed while teaching. Future teachers should use these to 
 - dotenv — knows why secrets go in env vars, `.env` + `.env.example` pattern, why dotenv must load first
 - Nodemailer — understands SMTP transports, Ethereal for dev, Brevo SMTP for prod, lazy transporter init
 - passport-jwt — knows `ExtractJwt.fromAuthHeaderAsBearerToken()`, `Authorization: Bearer` header, audience enforcement, same gatekeeper pattern as `validateInput(schema)`
+- TypeScript basics — understands superset of JS, types erased at runtime, `strict: true`
+- TypeScript toolchain — knows `tsc` (type checker), `tsx` (runtime), `@types/*` packages
+- ES modules — `import`/`export` vs CommonJS `require`/`module.exports`, CJS/ESM interop pitfalls
+- Type annotations — function params, return types, `Promise<T>`
+- `as const` — literal types vs widened `string`, why it matters for unions
+- `typeof` + `keyof` — deriving types from runtime objects
+- `interface` — object shape definitions, optional fields (`?`), `extends` for composition
+- Generics (`<T>`) — type placeholders, `BusinessResult<T>`, `Promise<T>`, `Array<T>`
+- Discriminated unions — tag field narrowing, `BusinessResult` pattern, early-return narrowing
+- `Exclude<>` — filtering union members
+- `import type` — type-only imports, erased at runtime
+- `unknown` vs `any` — type-safe "don't know" vs turning off type checking
+- Non-null assertion `!` — overriding nullability with external guarantees
+- Type assertion `as` — casting with external validation (AJV, JWT decode)
+- `declare global` — declaration merging for Express `req.user`
+- Express 5 types — `Request`, `Response`, `NextFunction`, params as `string | string[]`
+- Prisma generated types — `User`, `Post`, `Prisma.UserCreateInput`, auto-generated from schema
+- `Awaited<ReturnType<typeof fn>>` — deriving types from function returns
+- Promises — three states, `await` extracts value, `async` always returns Promise, `.then()` chains, caching pattern
+- Path aliases (`@/`) — tsconfig `baseUrl` + `paths`, why absolute-ish imports beat relative `../../`, `@/` vs `@org/` scoped packages
+- Import organization — external packages first, blank line, then internal imports; same principle as Ruby gems-before-own-files
+- Classes with static methods — used for Models (stateless Prisma wrappers) and utility services (JwtService, EmailService); acts as a namespace with growth potential (private, inheritance)
+- Classes with instance methods — used for business Services (UserService, PostService) and Controllers; enables future DI through constructor params
+- `.bind(this)` in constructors — Express strips `this` from callbacks; `.bind()` creates a new function with `this` permanently locked; only needed when a framework calls methods as standalone functions
+- MVC + Services pattern — Route → Controller → Service → Model, each layer has one job; controllers handle HTTP, services handle business logic, models handle data access
+- `private` class members — encapsulating internal state (`transporterPromise`, service instances); prevents external access to implementation details
 
 ---
 

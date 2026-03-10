@@ -1,14 +1,15 @@
-require('dotenv').config();
-const { expect } = require('expect');
-const { sendConfirmationEmail } = require('../../src/services/email');
+import 'dotenv/config';
+import { expect } from 'expect';
+
+import EmailService from '@/services/EmailService';
 
 describe('Email Service', () => {
   describe('sendConfirmationEmail', () => {
-    let emailInfo;
+    let emailInfo: { messageId: string; previewUrl: string | null };
 
     before(async function () {
       this.timeout(10000);
-      emailInfo = await sendConfirmationEmail('test@example.com', 'fake-token-123');
+      emailInfo = await EmailService.sendConfirmationEmail('test@example.com', 'fake-token-123');
     });
 
     it('should send an email and return info with messageId', () => {

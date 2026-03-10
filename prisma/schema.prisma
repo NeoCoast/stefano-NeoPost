@@ -17,5 +17,20 @@ model User {
   createdAt DateTime  @default(now()) @db.Timestamptz()
   updatedAt DateTime  @updatedAt      @db.Timestamptz()
 
+  posts     Post[]
+
   @@map("users")
+}
+
+model Post {
+  id        BigInt    @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime  @default(now()) @db.Timestamptz()
+  updatedAt DateTime  @updatedAt      @db.Timestamptz()
+
+  userId    BigInt
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("posts")
 }

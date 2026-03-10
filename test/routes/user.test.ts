@@ -1,10 +1,11 @@
-require('dotenv').config();
-const request = require('supertest');
-const { expect } = require('expect');
-const { faker } = require('@faker-js/faker');
-const jwt = require('jsonwebtoken');
-const app = require('../../src/app');
-const prisma = require('../../src/db/prisma');
+import 'dotenv/config';
+import request from 'supertest';
+import { expect } from 'expect';
+import { faker } from '@faker-js/faker';
+import jwt from 'jsonwebtoken';
+
+import app from '@/app';
+import prisma from '@/db/prisma';
 
 describe('POST /api/users/signup', () => {
   const validUser = {
@@ -12,7 +13,7 @@ describe('POST /api/users/signup', () => {
     username: faker.internet.username(),
     password: 'securepass123',
   };
-  let signupResponse;
+  let signupResponse: request.Response;
 
   before(async function () {
     this.timeout(10000);
@@ -32,13 +33,13 @@ describe('POST /api/users/signup', () => {
 
   it('should store user with confirmed: false', async () => {
     const user = await prisma.user.findUnique({ where: { email: validUser.email } });
-    expect(user.confirmed).toBe(false);
+    expect(user!.confirmed).toBe(false);
   });
 
   it('should store a hashed password, not plaintext', async () => {
     const user = await prisma.user.findUnique({ where: { email: validUser.email } });
-    expect(user.password).not.toBe('securepass123');
-    expect(user.password.startsWith('$2b$')).toBe(true);
+    expect(user!.password).not.toBe('securepass123');
+    expect(user!.password.startsWith('$2b$')).toBe(true);
   });
 
   it('should return 409 for duplicate email', async () => {
@@ -59,7 +60,7 @@ describe('POST /api/users/signup', () => {
 });
 
 describe('GET /api/users/confirm', () => {
-  let confirmUser;
+  let confirmUser: Awaited<ReturnType<typeof prisma.user.findFirst>>;
 
   before(async function () {
     this.timeout(10000);
@@ -79,8 +80,8 @@ describe('GET /api/users/confirm', () => {
 
   it('should confirm user with valid token', async () => {
     const token = jwt.sign(
-      { userId: Number(confirmUser.id) },
-      process.env.JWT_SECRET,
+      { userId: Number(confirmUser!.id) },
+      process.env.JWT_SECRET!,
       { audience: 'email-confirmation', expiresIn: '24h' },
     );
 
@@ -90,8 +91,8 @@ describe('GET /api/users/confirm', () => {
     expect(response.status).toBe(200);
     expect(response.body.message).toBeDefined();
 
-    confirmUser = await prisma.user.findUnique({ where: { id: confirmUser.id } });
-    expect(confirmUser.confirmed).toBe(true);
+    confirmUser = await prisma.user.findUnique({ where: { id: confirmUser!.id } });
+    expect(confirmUser!.confirmed).toBe(true);
   });
 
   it('should return 400 for invalid token', async () => {
@@ -103,8 +104,8 @@ describe('GET /api/users/confirm', () => {
 
   it('should return 400 for auth token used as confirmation', async () => {
     const authToken = jwt.sign(
-      { userId: Number(confirmUser.id) },
-      process.env.JWT_SECRET,
+      { userId: Number(confirmUser!.id) },
+      process.env.JWT_SECRET!,
       { audience: 'api', expiresIn: '24h' },
     );
 
@@ -136,7 +137,7 @@ describe('POST /api/users/signin', () => {
       .send(testUser);
 
     const user = await prisma.user.findUnique({ where: { email: testUser.email } });
-    await prisma.user.update({ where: { id: user.id }, data: { confirmed: true } });
+    await prisma.user.update({ where: { id: user!.id }, data: { confirmed: true } });
   });
 
   after(async () => {
@@ -202,7 +203,7 @@ describe('POST /api/users/signin', () => {
 });
 
 describe('GET /api/users/me', () => {
-  let authToken;
+  let authToken: string;
   const meUser = {
     email: faker.internet.email(),
     username: faker.internet.username(),
@@ -216,7 +217,7 @@ describe('GET /api/users/me', () => {
       .send(meUser);
 
     const user = await prisma.user.findUnique({ where: { email: meUser.email } });
-    await prisma.user.update({ where: { id: user.id }, data: { confirmed: true } });
+    await prisma.user.update({ where: { id: user!.id }, data: { confirmed: true } });
 
     const signinResponse = await request(app)
       .post('/api/users/signin')
@@ -255,7 +256,7 @@ describe('GET /api/users/me', () => {
   it('should return 401 with a confirmation token (wrong audience)', async () => {
     const confirmToken = jwt.sign(
       { userId: 1 },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET!,
       { audience: 'email-confirmation', expiresIn: '24h' },
     );
 

@@ -1,0 +1,89 @@
+import type { Request, Response, NextFunction } from 'express';
+
+import { RESULT_CODES } from '@/utils/constants';
+import UserService from '@/services/UserService';
+import JwtService from '@/services/JwtService';
+import passport from '@/middlewares/passport';
+import type { SignupInput } from '@/types/auth';
+
+class UserController {
+  private userService: UserService;
+
+  constructor() {
+    this.userService = new UserService();
+
+    this.signup = this.signup.bind(this);
+    this.confirm = this.confirm.bind(this);
+    this.signin = this.signin.bind(this);
+    this.me = this.me.bind(this);
+  }
+
+  async signup(req: Request, res: Response): Promise<void> {
+    const result = await this.userService.signup(req.body as SignupInput);
+
+    if (result.code === RESULT_CODES.ALREADY_EXISTS) {
+      res.status(409).json({ message: 'Email or username already exists' });
+      return;
+    }
+
+    if (result.code === RESULT_CODES.ERROR) {
+      res.status(500).json({ message: 'Error creating user', error: result.data });
+      return;
+    }
+
+    res.status(201).json(result.data);
+  }
+
+  async confirm(req: Request, res: Response): Promise<void> {
+    const { token } = req.query;
+
+    if (!token) {
+      res.status(400).json({ message: 'Token is required' });
+      return;
+    }
+
+    const result = await this.userService.confirmEmail(token as string);
+
+    if (result.code === RESULT_CODES.NOT_FOUND) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    if (result.code === RESULT_CODES.ERROR) {
+      res.status(400).json(result.data);
+      return;
+    }
+
+    res.json(result.data);
+  }
+
+  signin(req: Request, res: Response, next: NextFunction): void {
+    passport.authenticate(
+      'local',
+      { session: false },
+      (err: Error | null, user: Express.User | false) => {
+        if (err) {
+          return next(err);
+        }
+
+        if (!user) {
+          return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        if (!user.confirmed) {
+          return res.status(403).json({ message: 'Please confirm your email before signing in' });
+        }
+
+        const token = JwtService.generateAuthToken(Number(user.id));
+        const { password: _, ...userData } = user;
+        return res.json({ token, user: { ...userData, id: Number(userData.id) } });
+      },
+    )(req, res, next);
+  }
+
+  me(_req: Request, res: Response): void {
+    res.status(204).send();
+  }
+}
+
+export default UserController;
