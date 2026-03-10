@@ -9,12 +9,9 @@ class PostController {
 
   constructor() {
     this.postService = new PostService();
-
-    this.create = this.create.bind(this);
-    this.edit = this.edit.bind(this);
   }
 
-  async create(req: Request, res: Response): Promise<void> {
+  create = async (req: Request, res: Response): Promise<void> => {
     const result = await this.postService.create(req.body as CreatePostInput, req.user!);
 
     if (result.code !== RESULT_CODES.SUCCESS) {
@@ -24,9 +21,9 @@ class PostController {
 
     const post = { ...result.data, id: Number(result.data.id), userId: Number(result.data.userId) };
     res.status(201).json(post);
-  }
+  };
 
-  async edit(req: Request, res: Response): Promise<void> {
+  edit = async (req: Request, res: Response): Promise<void> => {
     const id = BigInt(String(req.params.id));
     const result = await this.postService.edit(id, req.body as EditPostInput, req.user!);
 
@@ -52,7 +49,29 @@ class PostController {
 
     const post = { ...result.data, id: Number(result.data.id), userId: Number(result.data.userId) };
     res.json(post);
-  }
+  };
+
+  delete = async (req: Request, res: Response): Promise<void> => {
+    const id = BigInt(String(req.params.id));
+    const result = await this.postService.remove(id, req.user!);
+
+    if (result.code === RESULT_CODES.NOT_FOUND) {
+      res.status(404).json({ message: 'Post not found' });
+      return;
+    }
+
+    if (result.code === RESULT_CODES.FORBIDDEN) {
+      res.status(403).json({ message: 'You can only delete your own posts' });
+      return;
+    }
+
+    if (result.code !== RESULT_CODES.SUCCESS) {
+      res.status(500).json({ message: 'Error deleting post' });
+      return;
+    }
+
+    res.status(204).send();
+  };
 }
 
 export default PostController;

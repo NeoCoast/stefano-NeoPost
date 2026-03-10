@@ -11,5 +11,6 @@ const authenticate = passport.authenticate('jwt', { session: false });
 
 router.post('/', authenticate, validateInput(createPostSchema), controller.create);
 router.patch('/:id', authenticate, validateInput(editPostSchema), controller.edit);
+router.delete('/:id', authenticate, controller.delete);
 
 export default router;

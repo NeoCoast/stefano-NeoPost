@@ -211,6 +211,114 @@ describe('PATCH /api/posts/:id', () => {
   });
 });
 
+describe('DELETE /api/posts/:id', () => {
+  let authToken: string;
+  let otherAuthToken: string;
+  let testUser: Awaited<ReturnType<typeof prisma.user.create>>;
+  let otherUser: Awaited<ReturnType<typeof prisma.user.create>>;
+
+  before(async () => {
+    const result = await createConfirmedUser();
+    testUser = result.user;
+    authToken = result.token;
+
+    const otherResult = await createConfirmedUser();
+    otherUser = otherResult.user;
+    otherAuthToken = otherResult.token;
+  });
+
+  after(async () => {
+    await prisma.post.deleteMany({ where: { userId: { in: [testUser.id, otherUser.id] } } });
+    await prisma.user.deleteMany({ where: { id: { in: [testUser.id, otherUser.id] } } });
+  });
+
+  it('should return 204 with empty body when owner deletes their post', async () => {
+    const post = await prisma.post.create({
+      data: { title: 'To Delete', content: 'Content', userId: testUser.id },
+    });
+
+    const response = await request(app)
+      .delete(`/api/posts/${Number(post.id)}`)
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response.status).toBe(204);
+    expect(response.body).toEqual({});
+
+    // Verify soft-delete: deletedAt should be set
+    const deletedPost = await prisma.$queryRaw<{ deletedAt: Date | null }[]>`
+      SELECT "deletedAt" FROM "posts" WHERE id = ${post.id}
+    `;
+    expect(deletedPost[0].deletedAt).not.toBeNull();
+  });
+
+  it('should return 401 without auth token', async () => {
+    const post = await prisma.post.create({
+      data: { title: 'Title', content: 'Content', userId: testUser.id },
+    });
+
+    const response = await request(app)
+      .delete(`/api/posts/${Number(post.id)}`);
+
+    expect(response.status).toBe(401);
+    await prisma.post.delete({ where: { id: post.id } });
+  });
+
+  it('should return 404 when post does not exist', async () => {
+    const response = await request(app)
+      .delete('/api/posts/999999')
+      .set('Authorization', `Bearer ${authToken}`);
+    expect(response.status).toBe(404);
+  });
+
+  it('should return 403 when user does not own the post', async () => {
+    const post = await prisma.post.create({
+      data: { title: 'Title', content: 'Content', userId: testUser.id },
+    });
+
+    const response = await request(app)
+      .delete(`/api/posts/${Number(post.id)}`)
+      .set('Authorization', `Bearer ${otherAuthToken}`);
+
+    expect(response.status).toBe(403);
+    await prisma.post.delete({ where: { id: post.id } });
+  });
+
+  it('should return 404 when post is already soft-deleted', async () => {
+    const post = await prisma.post.create({
+      data: { title: 'Title', content: 'Content', userId: testUser.id },
+    });
+
+    // Soft-delete directly in DB to bypass future filter
+    await prisma.$executeRaw`
+      UPDATE "posts" SET "deletedAt" = NOW() WHERE id = ${post.id}
+    `;
+
+    const response = await request(app)
+      .delete(`/api/posts/${Number(post.id)}`)
+      .set('Authorization', `Bearer ${authToken}`);
+
+    expect(response.status).toBe(404);
+  });
+
+  it('should return 404 when trying to edit a soft-deleted post', async () => {
+    const post = await prisma.post.create({
+      data: { title: 'Title', content: 'Content', userId: testUser.id },
+    });
+
+    // Soft-delete directly in DB to bypass future filter
+    await prisma.$executeRaw`
+      UPDATE "posts" SET "deletedAt" = NOW() WHERE id = ${post.id}
+    `;
+
+    const response = await request(app)
+      .patch(`/api/posts/${Number(post.id)}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ title: 'Updated' });
+
+    expect(response.status).toBe(404);
+  });
+});
+
 after(async () => {
   await prisma.$disconnect();
 });
