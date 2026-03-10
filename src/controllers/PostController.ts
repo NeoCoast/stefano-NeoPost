@@ -12,6 +12,7 @@ class PostController {
 
     this.create = this.create.bind(this);
     this.edit = this.edit.bind(this);
+    this.delete = this.delete.bind(this);
   }
 
   async create(req: Request, res: Response): Promise<void> {
@@ -52,6 +53,28 @@ class PostController {
 
     const post = { ...result.data, id: Number(result.data.id), userId: Number(result.data.userId) };
     res.json(post);
+  }
+
+  async delete(req: Request, res: Response): Promise<void> {
+    const id = BigInt(String(req.params.id));
+    const result = await this.postService.remove(id, req.user!);
+
+    if (result.code === RESULT_CODES.NOT_FOUND) {
+      res.status(404).json({ message: 'Post not found' });
+      return;
+    }
+
+    if (result.code === RESULT_CODES.FORBIDDEN) {
+      res.status(403).json({ message: 'You can only delete your own posts' });
+      return;
+    }
+
+    if (result.code !== RESULT_CODES.SUCCESS) {
+      res.status(500).json({ message: 'Error deleting post' });
+      return;
+    }
+
+    res.status(204).send();
   }
 }
 
