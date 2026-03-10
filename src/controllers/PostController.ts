@@ -9,13 +9,9 @@ class PostController {
 
   constructor() {
     this.postService = new PostService();
-
-    this.create = this.create.bind(this);
-    this.edit = this.edit.bind(this);
-    this.delete = this.delete.bind(this);
   }
 
-  async create(req: Request, res: Response): Promise<void> {
+  create = async (req: Request, res: Response): Promise<void> => {
     const result = await this.postService.create(req.body as CreatePostInput, req.user!);
 
     if (result.code !== RESULT_CODES.SUCCESS) {
@@ -25,9 +21,9 @@ class PostController {
 
     const post = { ...result.data, id: Number(result.data.id), userId: Number(result.data.userId) };
     res.status(201).json(post);
-  }
+  };
 
-  async edit(req: Request, res: Response): Promise<void> {
+  edit = async (req: Request, res: Response): Promise<void> => {
     const id = BigInt(String(req.params.id));
     const result = await this.postService.edit(id, req.body as EditPostInput, req.user!);
 
@@ -53,9 +49,9 @@ class PostController {
 
     const post = { ...result.data, id: Number(result.data.id), userId: Number(result.data.userId) };
     res.json(post);
-  }
+  };
 
-  async delete(req: Request, res: Response): Promise<void> {
+  delete = async (req: Request, res: Response): Promise<void> => {
     const id = BigInt(String(req.params.id));
     const result = await this.postService.remove(id, req.user!);
 
@@ -75,7 +71,7 @@ class PostController {
     }
 
     res.status(204).send();
-  }
+  };
 }
 
 export default PostController;

@@ -11,14 +11,9 @@ class UserController {
 
   constructor() {
     this.userService = new UserService();
-
-    this.signup = this.signup.bind(this);
-    this.confirm = this.confirm.bind(this);
-    this.signin = this.signin.bind(this);
-    this.me = this.me.bind(this);
   }
 
-  async signup(req: Request, res: Response): Promise<void> {
+  signup = async (req: Request, res: Response): Promise<void> => {
     const result = await this.userService.signup(req.body as SignupInput);
 
     if (result.code === RESULT_CODES.ALREADY_EXISTS) {
@@ -32,9 +27,9 @@ class UserController {
     }
 
     res.status(201).json(result.data);
-  }
+  };
 
-  async confirm(req: Request, res: Response): Promise<void> {
+  confirm = async (req: Request, res: Response): Promise<void> => {
     const { token } = req.query;
 
     if (!token) {
@@ -55,9 +50,9 @@ class UserController {
     }
 
     res.json(result.data);
-  }
+  };
 
-  signin(req: Request, res: Response, next: NextFunction): void {
+  signin = (req: Request, res: Response, next: NextFunction): void => {
     passport.authenticate(
       'local',
       { session: false },
@@ -79,11 +74,11 @@ class UserController {
         return res.json({ token, user: { ...userData, id: Number(userData.id) } });
       },
     )(req, res, next);
-  }
+  };
 
-  me(_req: Request, res: Response): void {
+  me = (_req: Request, res: Response): void => {
     res.status(204).send();
-  }
+  };
 }
 
 export default UserController;
