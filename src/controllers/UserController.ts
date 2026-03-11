@@ -73,7 +73,7 @@ class UserController {
 
         const token = JwtService.generateAuthToken(Number(user.id));
         const { password: _, ...userData } = user;
-        return res.json({ token, user: { ...userData, id: Number(userData.id) } });
+        return res.json({ token, user: userData });
       },
     )(req, res, next);
   };

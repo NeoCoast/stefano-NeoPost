@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import type { Post } from '@prisma/client';
 
 import { RESULT_CODES } from '@/utils/constants';
 import PostService from '@/services/PostService';
@@ -23,8 +22,7 @@ class PostController {
         return;
     }
 
-    const post = { ...result.data, id: Number(result.data.id), userId: Number(result.data.userId) };
-    res.status(201).json(post);
+    res.status(201).json(result.data);
   };
 
   edit = async (req: Request, res: Response): Promise<void> => {
@@ -48,8 +46,7 @@ class PostController {
         return;
     }
 
-    const post = { ...result.data, id: Number(result.data.id), userId: Number(result.data.userId) };
-    res.json(post);
+    res.json(result.data);
   };
 
   delete = async (req: Request, res: Response): Promise<void> => {
@@ -94,20 +91,7 @@ class PostController {
         }
     }
 
-    // Convert BigInt to Number for JSON, including nested user
-    const rawComment = result.data as Post & { user?: { id: bigint; username: string } };
-    const comment = {
-      ...rawComment,
-      id: Number(rawComment.id),
-      userId: Number(rawComment.userId),
-      parentId: Number(rawComment.parentId),
-      user: rawComment.user ? {
-        id: Number(rawComment.user.id),
-        username: rawComment.user.username,
-      } : undefined,
-    };
-
-    res.status(201).json(comment);
+    res.status(201).json(result.data);
   };
 
   getComments = async (req: Request, res: Response): Promise<void> => {
@@ -131,22 +115,14 @@ class PostController {
         }
     }
 
-    // Convert BigInt to Number and add commentsCount
+    // Add commentsCount to each comment
     const comments = await Promise.all(
       result.data.map(async (comment) => {
         const commentsCount = await this.postService.countCommentsByParentId(comment.id);
-        const rawComment = comment as Post & { user?: { id: bigint; username: string } };
 
         return {
-          ...rawComment,
-          id: Number(rawComment.id),
-          userId: Number(rawComment.userId),
-          parentId: Number(rawComment.parentId),
+          ...comment,
           commentsCount,
-          user: rawComment.user ? {
-            id: Number(rawComment.user.id),
-            username: rawComment.user.username,
-          } : undefined,
         };
       }),
     );
