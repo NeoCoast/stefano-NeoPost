@@ -125,6 +125,89 @@ The project uses plain `kebab-case.js` names organized by directory.
 - Error responses follow: `{ message: 'Human-readable error' }`
 - Use `console.error('Context:', error.message)` in catch blocks (not the full error object)
 
+### Controller Code Style
+
+**Switch Statements for Result Handling:**
+Use switch statements instead of multiple if-else chains when checking `result.code`:
+
+```typescript
+// Good - switch statement
+switch (result.code) {
+  case RESULT_CODES.NOT_FOUND:
+    res.status(404).json({ message: 'Not found' });
+    return;
+  case RESULT_CODES.FORBIDDEN:
+    res.status(403).json({ message: 'Forbidden' });
+    return;
+  case RESULT_CODES.SUCCESS:
+    break;
+  default:
+    res.status(500).json({ message: 'Error' });
+    return;
+}
+
+// Avoid - multiple if-else chains
+if (result.code === RESULT_CODES.NOT_FOUND) { ... }
+if (result.code === RESULT_CODES.FORBIDDEN) { ... }
+```
+
+**Blank Lines Around Control Flow:**
+Always add a blank line before and after `if` statements (unless it's the first/last element in a block):
+
+```typescript
+// Good
+const post = await PostModel.findById(id);
+
+if (!post) {
+  return { code: RESULT_CODES.NOT_FOUND, data: null };
+}
+
+const comments = await PostModel.findCommentsByParentId(id);
+
+// Avoid
+const post = await PostModel.findById(id);
+if (!post) {
+  return { code: RESULT_CODES.NOT_FOUND, data: null };
+}
+const comments = await PostModel.findCommentsByParentId(id);
+```
+
+**Blank Lines Before Returns:**
+Add a blank line before `return` statements (unless immediately after `{`):
+
+```typescript
+// Good
+try {
+  const data = await fetchData();
+
+  return { code: RESULT_CODES.SUCCESS, data };
+} catch (error) {
+  console.error('Error:', error);
+
+  return { code: RESULT_CODES.ERROR, data: error };
+}
+
+// Avoid
+try {
+  const data = await fetchData();
+  return { code: RESULT_CODES.SUCCESS, data };
+} catch (error) {
+  console.error('Error:', error);
+  return { code: RESULT_CODES.ERROR, data: error };
+}
+```
+
+**No Data Access Layer in Controllers:**
+Controllers should NOT import or use data access layer (PostModel, UserModel, etc.) directly. Use service methods instead:
+
+```typescript
+// Good - use service method
+const count = await this.postService.countCommentsByParentId(id);
+
+// Avoid - direct model usage in controller
+const count = await PostModel.countCommentsByParentId(id);
+```
+
 ### Validation
 
 - AJV for request body validation via `validateInput` middleware
