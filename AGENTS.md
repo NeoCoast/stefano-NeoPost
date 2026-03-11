@@ -208,6 +208,23 @@ const count = await this.postService.countCommentsByParentId(id);
 const count = await PostModel.countCommentsByParentId(id);
 ```
 
+## BigInt Handling
+
+PostgreSQL uses `BIGINT` for IDs. By default, JavaScript's `JSON.stringify()` cannot serialize BigInt values.
+
+**Solution:** We add a global `toJSON` method to BigInt.prototype in `app.ts`:
+
+```typescript
+// Global BigInt JSON serialization fix
+(BigInt.prototype as any).toJSON = function () {
+  return Number(this);
+};
+```
+
+This automatically converts all BigInt values to Numbers when serializing to JSON. **No manual conversion needed in controllers.**
+
+**Note:** The only exception is when passing BigInt to functions that explicitly expect `number` type (e.g., `JwtService.generateAuthToken(Number(user.id))`).
+
 ### Validation
 
 - AJV for request body validation via `validateInput` middleware
