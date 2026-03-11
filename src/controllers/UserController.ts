@@ -16,14 +16,15 @@ class UserController {
   signup = async (req: Request, res: Response): Promise<void> => {
     const result = await this.userService.signup(req.body as SignupInput);
 
-    if (result.code === RESULT_CODES.ALREADY_EXISTS) {
-      res.status(409).json({ message: 'Email or username already exists' });
-      return;
-    }
-
-    if (result.code === RESULT_CODES.ERROR) {
-      res.status(500).json({ message: 'Error creating user', error: result.data });
-      return;
+    switch (result.code) {
+      case RESULT_CODES.ALREADY_EXISTS:
+        res.status(409).json({ message: 'Email or username already exists' });
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error creating user', error: result.data });
+        return;
+      default:
+        break;
     }
 
     res.status(201).json(result.data);
@@ -39,14 +40,15 @@ class UserController {
 
     const result = await this.userService.confirmEmail(token as string);
 
-    if (result.code === RESULT_CODES.NOT_FOUND) {
-      res.status(404).json({ message: 'User not found' });
-      return;
-    }
-
-    if (result.code === RESULT_CODES.ERROR) {
-      res.status(400).json(result.data);
-      return;
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'User not found' });
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(400).json(result.data);
+        return;
+      default:
+        break;
     }
 
     res.json(result.data);

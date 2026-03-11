@@ -73,6 +73,7 @@ class PostService {
     try {
       // Verify parent post exists and is not soft-deleted
       const parent = await PostModel.findById(parentId);
+
       if (!parent) {
         return { code: RESULT_CODES.NOT_FOUND, data: null };
       }
@@ -86,6 +87,7 @@ class PostService {
       return { code: RESULT_CODES.SUCCESS, data: comment };
     } catch (error) {
       console.error('Create comment error:', error);
+
       return { code: RESULT_CODES.ERROR, data: error };
     }
   }
@@ -97,16 +99,23 @@ class PostService {
     try {
       // Verify post exists
       const post = await PostModel.findById(postId);
+
       if (!post) {
         return { code: RESULT_CODES.NOT_FOUND, data: null };
       }
 
       const comments = await PostModel.findCommentsByParentId(postId, options);
+
       return { code: RESULT_CODES.SUCCESS, data: comments };
     } catch (error) {
       console.error('Get comments error:', error);
+
       return { code: RESULT_CODES.ERROR, data: error };
     }
+  }
+
+  async countCommentsByParentId(parentId: bigint): Promise<number> {
+    return PostModel.countCommentsByParentId(parentId);
   }
 }
 
