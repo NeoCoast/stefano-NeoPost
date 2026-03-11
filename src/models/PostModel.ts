@@ -27,6 +27,66 @@ class PostModel {
       data: { deletedAt: new Date() },
     });
   }
+
+  // Create a comment (post with parentId, no title)
+  static async createComment(data: {
+    content: string;
+    userId: bigint;
+    parentId: bigint;
+  }): Promise<Post> {
+    return prisma.post.create({
+      data: {
+        content: data.content,
+        userId: data.userId,
+        parentId: data.parentId,
+        title: null, // Comments have no title
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+  }
+
+  // Find direct comments for a post (excluding deleted)
+  static async findCommentsByParentId(
+    parentId: bigint,
+    options: { page: number; limit: number }
+  ): Promise<Post[]> {
+    return prisma.post.findMany({
+      where: {
+        parentId,
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: (options.page - 1) * options.limit,
+      take: options.limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+  }
+
+  // Count direct comments for a post
+  static async countCommentsByParentId(parentId: bigint): Promise<number> {
+    return prisma.post.count({
+      where: {
+        parentId,
+        deletedAt: null,
+      },
+    });
+  }
 }
 
 export default PostModel;
