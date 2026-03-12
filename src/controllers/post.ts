@@ -111,14 +111,15 @@ class PostController {
         }
     }
 
-    // Add commentsCount to each comment
     const comments = await Promise.all(
       result.data.map(async (comment) => {
         const commentsCount = await this.postService.countCommentsByParentId(comment.id);
+        const likeCount = await this.postService.getLikeCount(comment.id);
 
         return {
           ...comment,
           commentsCount,
+          likeCount,
         };
       }),
     );

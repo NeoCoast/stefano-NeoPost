@@ -127,6 +127,12 @@ class PostModel {
       },
     });
   }
+
+  static async countLikesByPostId(postId: bigint): Promise<number> {
+    return prisma.like.count({
+      where: { postId },
+    });
+  }
 }
 
 export default PostModel;

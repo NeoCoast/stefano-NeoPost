@@ -117,6 +117,10 @@ class PostService {
   async countCommentsByParentId(parentId: bigint): Promise<number> {
     return PostModel.countCommentsByParentId(parentId);
   }
+
+  async getLikeCount(postId: bigint): Promise<number> {
+    return PostModel.countLikesByPostId(postId);
+  }
 }
 
 export default PostService;
