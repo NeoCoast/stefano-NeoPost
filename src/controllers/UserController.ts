@@ -2,15 +2,18 @@ import type { Request, Response, NextFunction } from 'express';
 
 import { RESULT_CODES } from '@/utils/constants';
 import UserService from '@/services/UserService';
+import FollowService from '@/services/FollowService';
 import JwtService from '@/services/JwtService';
 import passport from '@/middlewares/passport';
 import type { SignupInput } from '@/types/auth';
 
 class UserController {
   private userService: UserService;
+  private followService: FollowService;
 
   constructor() {
     this.userService = new UserService();
+    this.followService = new FollowService();
   }
 
   signup = async (req: Request, res: Response): Promise<void> => {
@@ -81,6 +84,104 @@ class UserController {
 
   me = (_req: Request, res: Response): void => {
     res.status(204).send();
+  };
+
+  follow = async (req: Request, res: Response): Promise<void> => {
+    const followingId = BigInt(req.params.id as string);
+    const followerId = BigInt(req.user!.id);
+
+    const result = await this.followService.follow(followerId, followingId);
+
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'User not found' });
+
+        return;
+      case RESULT_CODES.FORBIDDEN:
+        res.status(400).json({ message: 'Cannot follow yourself' });
+
+        return;
+      case RESULT_CODES.ALREADY_EXISTS:
+        res.status(409).json({ message: 'Already following this user' });
+
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error following user' });
+
+        return;
+      default:
+        break;
+    }
+
+    res.status(201).json(result.data);
+  };
+
+  unfollow = async (req: Request, res: Response): Promise<void> => {
+    const followingId = BigInt(req.params.id as string);
+    const followerId = BigInt(req.user!.id);
+
+    const result = await this.followService.unfollow(followerId, followingId);
+
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'Not following this user' });
+
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error unfollowing user' });
+
+        return;
+      default:
+        break;
+    }
+
+    res.json(result.data);
+  };
+
+  getFollowers = async (req: Request, res: Response): Promise<void> => {
+    const userId = BigInt(req.params.id as string);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+
+    const result = await this.followService.getFollowers(userId, page, limit);
+
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'User not found' });
+
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error getting followers' });
+
+        return;
+      default:
+        break;
+    }
+
+    res.json(result.data);
+  };
+
+  getFollowing = async (req: Request, res: Response): Promise<void> => {
+    const userId = BigInt(req.params.id as string);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+
+    const result = await this.followService.getFollowing(userId, page, limit);
+
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'User not found' });
+
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error getting following' });
+
+        return;
+      default:
+        break;
+    }
+
+    res.json(result.data);
   };
 }
 

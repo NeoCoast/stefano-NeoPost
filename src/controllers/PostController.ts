@@ -26,7 +26,7 @@ class PostController {
   };
 
   edit = async (req: Request, res: Response): Promise<void> => {
-    const id = BigInt(String(req.params.id));
+    const id = BigInt(req.params.id as string);
     const result = await this.postService.edit(id, req.body as EditPostInput, req.user!);
 
     switch (result.code) {
@@ -50,7 +50,7 @@ class PostController {
   };
 
   delete = async (req: Request, res: Response): Promise<void> => {
-    const id = BigInt(String(req.params.id));
+    const id = BigInt(req.params.id as string);
     const result = await this.postService.remove(id, req.user!);
 
     switch (result.code) {
@@ -71,7 +71,7 @@ class PostController {
   };
 
   createComment = async (req: Request, res: Response): Promise<void> => {
-    const id = BigInt(String(req.params.id));
+    const id = BigInt(req.params.id as string);
     const { content } = req.body;
     const user = req.user!;
 
@@ -95,7 +95,7 @@ class PostController {
   };
 
   getComments = async (req: Request, res: Response): Promise<void> => {
-    const id = BigInt(String(req.params.id));
+    const id = BigInt(req.params.id as string);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
 
