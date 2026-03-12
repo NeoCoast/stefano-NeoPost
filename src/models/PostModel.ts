@@ -92,7 +92,7 @@ class PostModel {
     userId: bigint,
     options: { page: number; limit: number },
     type: 'post' | 'comment',
-  ): Promise<Post[]> {
+  ) {
     return prisma.post.findMany({
       where: {
         userId,
