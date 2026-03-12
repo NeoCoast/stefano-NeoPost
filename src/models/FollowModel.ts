@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import type { Follow, User } from '@prisma/client';
 
 import prisma from '@/db/prisma';
@@ -22,8 +23,11 @@ class FollowModel {
       return await prisma.follow.delete({
         where: { followerId_followingId: { followerId, followingId } },
       });
-    } catch {
-      return null;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        return null;
+      }
+      throw error;
     }
   }
 
