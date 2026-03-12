@@ -17,6 +17,8 @@ router.get('/confirm', userController.confirm);
 router.post('/signin', validateInput(signinSchema), userController.signin);
 router.get('/me', authenticate, userController.me);
 router.get('/:id', profileController.getProfile);
+router.get('/:id/posts', profileController.getPosts);
+router.get('/:id/comments', profileController.getComments);
 
 // Follow routes
 router.post('/:id/follow', authenticate, userController.follow);
