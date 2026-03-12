@@ -87,7 +87,7 @@ class UserController {
   };
 
   follow = async (req: Request, res: Response): Promise<void> => {
-    const followingId = BigInt(String(req.params.id));
+    const followingId = BigInt(req.params.id as string);
     const followerId = BigInt(req.user!.id);
 
     const result = await this.followService.follow(followerId, followingId);
@@ -113,7 +113,7 @@ class UserController {
   };
 
   unfollow = async (req: Request, res: Response): Promise<void> => {
-    const followingId = BigInt(String(req.params.id));
+    const followingId = BigInt(req.params.id as string);
     const followerId = BigInt(req.user!.id);
 
     const result = await this.followService.unfollow(followerId, followingId);
@@ -133,7 +133,7 @@ class UserController {
   };
 
   getFollowers = async (req: Request, res: Response): Promise<void> => {
-    const userId = BigInt(String(req.params.id));
+    const userId = BigInt(req.params.id as string);
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 
@@ -154,7 +154,7 @@ class UserController {
   };
 
   getFollowing = async (req: Request, res: Response): Promise<void> => {
-    const userId = BigInt(String(req.params.id));
+    const userId = BigInt(req.params.id as string);
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 

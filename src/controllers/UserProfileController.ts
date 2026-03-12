@@ -11,7 +11,7 @@ class UserProfileController {
   }
 
   getProfile = async (req: Request, res: Response): Promise<void> => {
-    const userId = BigInt(String(req.params.id));
+    const userId = BigInt(req.params.id as string);
 
     const result = await this.userProfileService.getProfile(userId);
 
