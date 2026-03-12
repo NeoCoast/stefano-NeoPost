@@ -18,9 +18,11 @@ class UserProfileController {
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
+
         return;
       case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Error getting user profile' });
+
         return;
       default:
         break;

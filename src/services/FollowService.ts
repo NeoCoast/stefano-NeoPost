@@ -78,10 +78,10 @@ class FollowService {
         FollowModel.countFollowers(userId),
       ]);
 
-      const data = followers.map((f) => ({
-        id: f.follower.id,
-        username: f.follower.username,
-        createdAt: f.follower.createdAt,
+      const data = followers.map(({ follower: { id, username, createdAt } }) => ({
+        id,
+        username,
+        createdAt,
       }));
 
       return {
@@ -119,10 +119,10 @@ class FollowService {
         FollowModel.countFollowing(userId),
       ]);
 
-      const data = following.map((f) => ({
-        id: f.following.id,
-        username: f.following.username,
-        createdAt: f.following.createdAt,
+      const data = following.map(({ following: { id, username, createdAt } }) => ({
+        id,
+        username,
+        createdAt,
       }));
 
       return {

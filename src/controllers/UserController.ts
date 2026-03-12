@@ -95,15 +95,19 @@ class UserController {
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
+
         return;
       case RESULT_CODES.FORBIDDEN:
         res.status(400).json({ message: 'Cannot follow yourself' });
+
         return;
       case RESULT_CODES.ALREADY_EXISTS:
         res.status(409).json({ message: 'Already following this user' });
+
         return;
       case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Error following user' });
+
         return;
       default:
         break;
@@ -121,9 +125,11 @@ class UserController {
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'Not following this user' });
+
         return;
       case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Error unfollowing user' });
+
         return;
       default:
         break;
@@ -142,9 +148,11 @@ class UserController {
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
+
         return;
       case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Error getting followers' });
+
         return;
       default:
         break;
@@ -163,9 +171,11 @@ class UserController {
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
+
         return;
       case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Error getting following' });
+
         return;
       default:
         break;
