@@ -34,6 +34,8 @@ npx mocha --require tsx --grep "should return 401" test/
 - Set `DATABASE_URL` in `.env` file
 - Run migrations: `npx prisma migrate dev`
 
+**Important:** Ensure `.env` `DATABASE_URL` matches Docker configuration (port, database name, credentials). Mismatch causes tests to hit a different database than migrations.
+
 ### Pre-commit Hook
 
 Runs `npm run lint && npm test`. Both must pass before committing.
@@ -108,6 +110,28 @@ Controllers use switch statements on `result.code` to set HTTP status.
 - Use `RESULT_CODES` enum: `SUCCESS`, `NOT_FOUND`, `ALREADY_EXISTS`, `INVALID_CREDENTIALS`, `FORBIDDEN`, `EDIT_WINDOW_EXPIRED`, `ERROR`
 - Error responses: `{ message: 'Human-readable error' }`
 - Use `console.error('Context:', error)` in catch blocks
+
+### Controller Patterns
+
+- **Type assertion for route params**: Use `req.params.id as string` instead of `String(req.params.id)` — cleaner and more explicit
+- **Blank lines before `return;`**: Add a blank line before each `return;` in switch statements for readability:
+  ```typescript
+  case RESULT_CODES.NOT_FOUND:
+    res.status(404).json({ message: 'User not found' });
+
+    return;
+  ```
+
+### Code Patterns
+
+- **Destructuring in map functions**: Prefer destructuring for cleaner code:
+  ```typescript
+  // Preferred
+  items.map(({ field: { id, name } }) => ({ id, name }))
+  
+  // Avoid
+  items.map((item) => ({ id: item.field.id, name: item.field.name }))
+  ```
 
 ## BigInt Handling
 
