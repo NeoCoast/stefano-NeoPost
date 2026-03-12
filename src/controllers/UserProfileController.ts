@@ -1,42 +1,32 @@
 import type { Request, Response } from 'express';
 
-import UserModel from '@/models/UserModel';
-import FollowService from '@/services/FollowService';
+import { RESULT_CODES } from '@/utils/constants';
+import UserProfileService from '@/services/UserProfileService';
 
 class UserProfileController {
-  private followService: FollowService;
+  private userProfileService: UserProfileService;
 
   constructor() {
-    this.followService = new FollowService();
+    this.userProfileService = new UserProfileService();
   }
 
   getProfile = async (req: Request, res: Response): Promise<void> => {
     const userId = BigInt(String(req.params.id));
 
-    try {
-      const user = await UserModel.findById(userId);
+    const result = await this.userProfileService.getProfile(userId);
 
-      if (!user) {
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
         return;
-      }
-
-      const [followerCount, followingCount] = await Promise.all([
-        this.followService.getFollowerCount(userId),
-        this.followService.getFollowingCount(userId),
-      ]);
-
-      const { password: _password, ...userData } = user;
-
-      res.json({
-        ...userData,
-        followerCount,
-        followingCount,
-      });
-    } catch (error) {
-      console.error('Get profile error:', error);
-      res.status(500).json({ message: 'Error getting user profile' });
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error getting user profile' });
+        return;
+      default:
+        break;
     }
+
+    res.json(result.data);
   };
 }
 
