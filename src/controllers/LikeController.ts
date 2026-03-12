@@ -11,7 +11,7 @@ class LikeController {
   }
 
   like = async (req: Request, res: Response): Promise<void> => {
-    const postId = BigInt(String(req.params.id));
+    const postId = BigInt(req.params.id as string);
     const userId = req.user!.id;
 
     const result = await this.likeService.like(userId, postId);
@@ -34,7 +34,7 @@ class LikeController {
   };
 
   unlike = async (req: Request, res: Response): Promise<void> => {
-    const postId = BigInt(String(req.params.id));
+    const postId = BigInt(req.params.id as string);
     const userId = req.user!.id;
 
     const result = await this.likeService.unlike(userId, postId);
@@ -54,7 +54,7 @@ class LikeController {
   };
 
   getLikers = async (req: Request, res: Response): Promise<void> => {
-    const postId = BigInt(String(req.params.id));
+    const postId = BigInt(req.params.id as string);
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
 
