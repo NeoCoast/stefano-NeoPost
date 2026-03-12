@@ -17,7 +17,9 @@ model User {
   createdAt DateTime  @default(now()) @db.Timestamptz()
   updatedAt DateTime  @updatedAt      @db.Timestamptz()
 
-  posts     Post[]
+  posts        Post[]
+  followers    Follow[] @relation("UserFollowers")
+  following    Follow[] @relation("UserFollowing")
 
   @@map("users")
 }
@@ -38,4 +40,18 @@ model Post {
   comments  Post[]    @relation("PostComments")
 
   @@map("posts")
+}
+
+model Follow {
+  followerId  BigInt
+  followingId BigInt
+
+  follower    User @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now()) @db.Timestamptz()
+
+  @@id([followerId, followingId])
+  @@index([followingId])
+  @@map("follows")
 }
