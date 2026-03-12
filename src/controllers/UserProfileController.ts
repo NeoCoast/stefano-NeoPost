@@ -32,7 +32,7 @@ class UserProfileController {
   };
 
   getPosts = async (req: Request, res: Response): Promise<void> => {
-    const userId = BigInt(String(req.params.id));
+    const userId = BigInt(req.params.id as string);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
 
@@ -41,9 +41,11 @@ class UserProfileController {
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
+
         return;
       case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Error getting user posts' });
+
         return;
       default:
         break;
@@ -53,7 +55,7 @@ class UserProfileController {
   };
 
   getComments = async (req: Request, res: Response): Promise<void> => {
-    const userId = BigInt(String(req.params.id));
+    const userId = BigInt(req.params.id as string);
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
 
@@ -62,9 +64,11 @@ class UserProfileController {
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
+
         return;
       case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Error getting user comments' });
+
         return;
       default:
         break;

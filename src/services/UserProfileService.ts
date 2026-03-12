@@ -101,6 +101,7 @@ class UserProfileService {
       };
     } catch (error) {
       console.error('Get user posts error:', error);
+
       return { code: RESULT_CODES.ERROR, data: error };
     }
   }
@@ -147,6 +148,7 @@ class UserProfileService {
       };
     } catch (error) {
       console.error('Get user comments error:', error);
+
       return { code: RESULT_CODES.ERROR, data: error };
     }
   }
