@@ -75,15 +75,9 @@ class UserProfileService {
       ]);
 
       const postsWithCommentsCount = await Promise.all(
-        posts.map(async (post) => {
-          const commentsCount = await PostModel.countCommentsByParentId(post.id);
-          return {
-            id: post.id,
-            title: post.title,
-            content: post.content,
-            createdAt: post.createdAt,
-            commentsCount,
-          };
+        posts.map(async ({ id, title, content, createdAt }) => {
+          const commentsCount = await PostModel.countCommentsByParentId(id);
+          return { id, title, content, createdAt, commentsCount };
         }),
       );
 
@@ -122,17 +116,14 @@ class UserProfileService {
         PostModel.countByUserId(userId, 'comment'),
       ]);
 
-      const commentsWithParent = (comments as CommentWithParent[]).map((comment) => ({
-        id: comment.id,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        parentPost: comment.parent
-          ? {
-              id: comment.parent.id,
-              title: comment.parent.title,
-            }
-          : null,
-      }));
+      const commentsWithParent = (comments as CommentWithParent[]).map(
+        ({ id, content, createdAt, parent }) => ({
+          id,
+          content,
+          createdAt,
+          parentPost: parent ? { id: parent.id, title: parent.title } : null,
+        }),
+      );
 
       return {
         code: RESULT_CODES.SUCCESS,
