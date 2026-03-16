@@ -83,6 +83,20 @@ class AuthController {
       },
     )(req, res, next);
   };
+
+  resendConfirmation = async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body as { email: string };
+
+    const result = await this.authService.resendConfirmation(email);
+
+    if (result.code === RESULT_CODES.ERROR) {
+      res.status(500).json({ message: 'Error sending confirmation email' });
+
+      return;
+    }
+
+    res.json(result.data);
+  };
 }
 
 export default AuthController;

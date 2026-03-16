@@ -49,6 +49,26 @@ class AuthService {
       return { code: RESULT_CODES.ERROR, data: { message: 'Invalid or expired token' } };
     }
   }
+
+  async resendConfirmation(email: string): Promise<ServiceResult<{ message: string }>> {
+    try {
+      const user = await UserModel.findByEmail(email);
+
+      if (user && !user.confirmed) {
+        const token = JwtService.generateConfirmationToken(Number(user.id));
+        await EmailService.sendConfirmationEmail(user.email, token);
+      }
+
+      return {
+        code: RESULT_CODES.SUCCESS,
+        data: { message: 'If your account exists and is unconfirmed, a new confirmation email has been sent' },
+      };
+    } catch (error) {
+      console.error('Resend confirmation error:', error);
+
+      return { code: RESULT_CODES.ERROR, data: error };
+    }
+  }
 }
 
 export default AuthService;

@@ -19,3 +19,12 @@ export const signinSchema = {
   required: ['email', 'password'],
   additionalProperties: false,
 } as const;
+
+export const resendConfirmationSchema = {
+  type: 'object',
+  properties: {
+    email: { type: 'string', pattern: '^[^@]+@[^@]+\\.[^@]+$' },
+  },
+  required: ['email'],
+  additionalProperties: false,
+} as const;
