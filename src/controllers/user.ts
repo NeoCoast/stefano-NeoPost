@@ -178,6 +178,21 @@ class UserController {
 
     res.json(result.data);
   };
+
+  listUsers = async (req: Request, res: Response): Promise<void> => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+
+    const result = await this.userService.listUsers({ page, limit });
+
+    if (result.code === RESULT_CODES.ERROR) {
+      res.status(500).json({ message: 'Error listing users' });
+
+      return;
+    }
+
+    res.json(result.data);
+  };
 }
 
 export default UserController;

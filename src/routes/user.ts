@@ -33,6 +33,9 @@ router.post(
 );
 router.get('/me', authenticate, requireConfirmed, userController.me);
 
+// List users (authenticated)
+router.get('/', authenticate, requireConfirmed, userController.listUsers);
+
 // Profile routes (public)
 router.get('/:id', userController.getProfile);
 router.get('/:id/posts', userController.getPosts);
