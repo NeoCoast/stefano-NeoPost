@@ -19,6 +19,8 @@ interface UserProfile {
   updatedAt: Date;
   followerCount: number;
   followingCount: number;
+  postsCount: number;
+  commentsCount: number;
 }
 
 class UserService {
@@ -36,9 +38,11 @@ class UserService {
         return { code: RESULT_CODES.NOT_FOUND, data: null };
       }
 
-      const [followerCount, followingCount] = await Promise.all([
+      const [followerCount, followingCount, postsCount, commentsCount] = await Promise.all([
         this.followService.getFollowerCount(userId),
         this.followService.getFollowingCount(userId),
+        PostModel.countByUserId(userId, 'post'),
+        PostModel.countByUserId(userId, 'comment'),
       ]);
 
       const { password: _password, ...userData } = user;
@@ -49,6 +53,8 @@ class UserService {
           ...userData,
           followerCount,
           followingCount,
+          postsCount,
+          commentsCount,
         },
       };
     } catch (error) {
