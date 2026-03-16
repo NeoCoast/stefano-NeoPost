@@ -1,13 +1,13 @@
 import bcrypt from 'bcrypt';
 
 import { RESULT_CODES } from '@/utils/constants';
-import UserModel from '@/models/UserModel';
-import JwtService from '@/services/JwtService';
-import EmailService from '@/services/EmailService';
+import UserModel from '@/models/user';
+import JwtService from '@/services/jwt';
+import EmailService from '@/services/email';
 import type { SignupInput } from '@/types/auth';
 import type { ServiceResult } from '@/types/common';
 
-class UserService {
+class AuthService {
   async signup(data: SignupInput): Promise<ServiceResult<{ message: string }>> {
     try {
       const existingEmail = await UserModel.findByEmail(data.email);
@@ -30,6 +30,7 @@ class UserService {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       console.error('Error creating user:', message);
+
       return { code: RESULT_CODES.ERROR, data: error };
     }
   }
@@ -50,4 +51,4 @@ class UserService {
   }
 }
 
-export default UserService;
+export default AuthService;

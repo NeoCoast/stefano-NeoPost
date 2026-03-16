@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { expect } from 'expect';
 import jwt from 'jsonwebtoken';
 
-import JwtService from '@/services/JwtService';
+import JwtService from '@/services/jwt';
 
 describe('JWT Service', () => {
   const userId = 42;

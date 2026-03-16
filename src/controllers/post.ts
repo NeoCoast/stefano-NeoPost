@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 
 import { RESULT_CODES } from '@/utils/constants';
-import PostService from '@/services/PostService';
+import PostService from '@/services/post';
 import type { CreatePostInput, EditPostInput } from '@/types/post';
 
 class PostController {

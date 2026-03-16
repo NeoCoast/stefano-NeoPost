@@ -1,26 +1,29 @@
 import { Router } from 'express';
 
-import UserController from '@/controllers/UserController';
-import UserProfileController from '@/controllers/UserProfileController';
+import AuthController from '@/controllers/auth';
+import UserController from '@/controllers/user';
 import passport from '@/middlewares/passport';
 import { validateInput } from '@/middlewares/validate-input';
 
 import { signupSchema, signinSchema } from '@/routes/validators/user-body';
 
 const router = Router();
+const authController = new AuthController();
 const userController = new UserController();
-const profileController = new UserProfileController();
 const authenticate = passport.authenticate('jwt', { session: false });
 
-router.post('/signup', validateInput(signupSchema), userController.signup);
-router.get('/confirm', userController.confirm);
-router.post('/signin', validateInput(signinSchema), userController.signin);
+// Auth routes
+router.post('/signup', validateInput(signupSchema), authController.signup);
+router.get('/confirm', authController.confirm);
+router.post('/signin', validateInput(signinSchema), authController.signin);
 router.get('/me', authenticate, userController.me);
-router.get('/:id', profileController.getProfile);
-router.get('/:id/posts', profileController.getPosts);
-router.get('/:id/comments', profileController.getComments);
 
-// Follow routes
+// Profile routes (public)
+router.get('/:id', userController.getProfile);
+router.get('/:id/posts', userController.getPosts);
+router.get('/:id/comments', userController.getComments);
+
+// Follow routes (authenticated)
 router.post('/:id/follow', authenticate, userController.follow);
 router.delete('/:id/follow', authenticate, userController.unfollow);
 router.get('/:id/followers', authenticate, userController.getFollowers);

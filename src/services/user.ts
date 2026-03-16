@@ -1,7 +1,7 @@
 import { RESULT_CODES } from '@/utils/constants';
-import UserModel from '@/models/UserModel';
-import FollowService from '@/services/FollowService';
-import PostModel from '@/models/PostModel';
+import UserModel from '@/models/user';
+import PostModel from '@/models/post';
+import FollowService from '@/services/follow';
 import type { ServiceResult } from '@/types/common';
 import type { Post } from '@prisma/client';
 
@@ -21,7 +21,7 @@ interface UserProfile {
   followingCount: number;
 }
 
-class UserProfileService {
+class UserService {
   private followService: FollowService;
 
   constructor() {
@@ -77,6 +77,7 @@ class UserProfileService {
       const postsWithCommentsCount = await Promise.all(
         posts.map(async ({ id, title, content, createdAt }) => {
           const commentsCount = await PostModel.countCommentsByParentId(id);
+
           return { id, title, content, createdAt, commentsCount };
         }),
       );
@@ -145,4 +146,4 @@ class UserProfileService {
   }
 }
 
-export default UserProfileService;
+export default UserService;

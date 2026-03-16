@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import PostController from '@/controllers/PostController';
+import PostController from '@/controllers/post';
 import passport from '@/middlewares/passport';
 import { validateInput } from '@/middlewares/validate-input';
 import { createPostSchema, editPostSchema } from '@/routes/validators/post-body';

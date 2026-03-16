@@ -1,7 +1,7 @@
 import type { Post, User } from '@prisma/client';
 
 import { RESULT_CODES, EDIT_WINDOW_MS } from '@/utils/constants';
-import PostModel from '@/models/PostModel';
+import PostModel from '@/models/post';
 import type { CreatePostInput, EditPostInput } from '@/types/post';
 import type { ServiceResult } from '@/types/common';
 
