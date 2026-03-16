@@ -8,8 +8,9 @@ import FollowService from '@/services/follow';
 import passport from '@/middlewares/passport';
 import { requireConfirmed } from '@/middlewares/require-confirmed';
 import { validateInput } from '@/middlewares/validate-input';
+import { resendConfirmationLimiter } from '@/middlewares/rate-limit';
 
-import { signupSchema, signinSchema } from '@/routes/validators/user-body';
+import { signupSchema, signinSchema, resendConfirmationSchema } from '@/routes/validators/user-body';
 
 const router = Router();
 const authenticate = passport.authenticate('jwt', { session: false });
@@ -24,6 +25,12 @@ const userController = new UserController(userService, followService);
 router.post('/signup', validateInput(signupSchema), authController.signup);
 router.get('/confirm', authController.confirm);
 router.post('/signin', validateInput(signinSchema), authController.signin);
+router.post(
+  '/resend-confirmation',
+  resendConfirmationLimiter,
+  validateInput(resendConfirmationSchema),
+  authController.resendConfirmation,
+);
 router.get('/me', authenticate, requireConfirmed, userController.me);
 
 // Profile routes (public)
