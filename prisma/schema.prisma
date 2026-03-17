@@ -21,6 +21,7 @@ model User {
   followers    Follow[] @relation("UserFollowers")
   following    Follow[] @relation("UserFollowing")
   likes        Like[]
+  feedItems    FeedItem[]
 
   @@map("users")
 }
@@ -40,6 +41,7 @@ model Post {
   parent    Post?     @relation("PostComments", fields: [parentId], references: [id])
   comments  Post[]    @relation("PostComments")
   likes     Like[]
+  feedItems FeedItem[]
 
   @@map("posts")
 }
@@ -70,4 +72,18 @@ model Like {
   @@unique([userId, postId])
   @@index([postId])
   @@map("likes")
+}
+
+model FeedItem {
+  userId     BigInt
+  postId     BigInt
+  position   Int
+  computedAt DateTime @default(now()) @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([userId, position])
+  @@map("feed_items")
 }
