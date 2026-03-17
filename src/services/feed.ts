@@ -59,20 +59,26 @@ class FeedService {
         PostModel.countFeedPosts(followingIds),
       ]);
 
-      const [likeCounts, commentCounts] = await Promise.all([
-        Promise.all(posts.map((post) => PostModel.countLikesByPostId(post.id))),
-        Promise.all(posts.map((post) => PostModel.countCommentsByParentId(post.id))),
-      ]);
+      const data: FeedPost[] = posts.map((post) => {
+        const feedPost = post as unknown as {
+          id: bigint;
+          title: string | null;
+          content: string;
+          createdAt: Date;
+          user: { id: bigint; username: string };
+          _count: { likes: number; comments: number };
+        };
 
-      const data: FeedPost[] = posts.map((post, i) => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        createdAt: post.createdAt,
-        user: (post as unknown as { user: { id: bigint; username: string } }).user,
-        likeCount: likeCounts[i],
-        commentsCount: commentCounts[i],
-      }));
+        return {
+          id: feedPost.id,
+          title: feedPost.title,
+          content: feedPost.content,
+          createdAt: feedPost.createdAt,
+          user: feedPost.user,
+          likeCount: feedPost._count.likes,
+          commentsCount: feedPost._count.comments,
+        };
+      });
 
       return {
         code: RESULT_CODES.SUCCESS,
