@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/bin/www.ts",
     "start": "tsx src/bin/www.ts",
+    "worker": "tsx src/bin/worker.ts",
     "test": "mocha --require tsx --recursive --exit 'test/**/*.test.ts'",
     "test:watch": "mocha --require tsx --recursive --exit --watch 'test/**/*.test.ts'",
     "lint": "eslint src/ test/",
@@ -21,8 +22,10 @@
     "@prisma/client": "^6.19.2",
     "ajv": "^8.17.1",
     "bcrypt": "^5.1.1",
+    "bullmq": "^5.71.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.11",
