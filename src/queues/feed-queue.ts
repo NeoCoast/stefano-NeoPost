@@ -11,7 +11,7 @@ const feedQueue = new Queue(FEED_QUEUE_NAME, {
 });
 
 export const addRecomputeJob = async (userId: bigint): Promise<void> => {
-  const jobId = `recompute-feed:${userId}`;
+  const jobId = `recompute-feed-${userId}`;
 
   await feedQueue.add(
     RECOMPUTE_JOB_NAME,

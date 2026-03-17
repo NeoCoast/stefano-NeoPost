@@ -1,4 +1,5 @@
 import { RESULT_CODES } from '@/utils/constants';
+import { addRecomputeJob } from '@/queues/feed-queue';
 import UserModel from '@/models/user';
 import FollowModel from '@/models/follow';
 import type { ServiceResult } from '@/types/common';
@@ -34,6 +35,7 @@ class FollowService {
       }
 
       await FollowModel.create(followerId, followingId);
+      await addRecomputeJob(followerId);
 
       return { code: RESULT_CODES.SUCCESS, data: { message: 'User followed successfully' } };
     } catch (error) {
@@ -53,6 +55,8 @@ class FollowService {
       if (!deleted) {
         return { code: RESULT_CODES.NOT_FOUND, data: null };
       }
+
+      await addRecomputeJob(followerId);
 
       return { code: RESULT_CODES.SUCCESS, data: { message: 'User unfollowed successfully' } };
     } catch (error) {
