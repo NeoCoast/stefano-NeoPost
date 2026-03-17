@@ -12,13 +12,12 @@ class PostController {
 
     switch (result.code) {
       case RESULT_CODES.SUCCESS:
-        break;
+        res.status(201).json(result.data);
+        return;
       default:
         res.status(500).json({ message: 'Error creating post' });
         return;
     }
-
-    res.status(201).json(result.data);
   };
 
   edit = async (req: Request, res: Response): Promise<void> => {
@@ -36,13 +35,12 @@ class PostController {
         res.status(403).json({ message: 'Posts can only be edited within 1 hour of creation' });
         return;
       case RESULT_CODES.SUCCESS:
-        break;
+        res.json(result.data);
+        return;
       default:
         res.status(500).json({ message: 'Error editing post' });
         return;
     }
-
-    res.json(result.data);
   };
 
   delete = async (req: Request, res: Response): Promise<void> => {
@@ -57,13 +55,12 @@ class PostController {
         res.status(403).json({ message: 'You can only delete your own posts' });
         return;
       case RESULT_CODES.SUCCESS:
-        break;
+        res.status(204).send();
+        return;
       default:
         res.status(500).json({ message: 'Error deleting post' });
         return;
     }
-
-    res.status(204).send();
   };
 
   createComment = async (req: Request, res: Response): Promise<void> => {
@@ -111,19 +108,19 @@ class PostController {
         }
     }
 
-    // Add commentsCount to each comment
     const comments = await Promise.all(
       result.data.map(async (comment) => {
         const commentsCount = await this.postService.countCommentsByParentId(comment.id);
+        const likeCount = await this.postService.getLikeCount(comment.id);
 
         return {
           ...comment,
           commentsCount,
+          likeCount,
         };
       }),
     );
 
-    // Get total count for pagination
     const total = await this.postService.countCommentsByParentId(id);
 
     res.status(200).json({
