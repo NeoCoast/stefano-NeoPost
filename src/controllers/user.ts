@@ -5,13 +5,10 @@ import UserService from '@/services/user';
 import FollowService from '@/services/follow';
 
 class UserController {
-  private userService: UserService;
-  private followService: FollowService;
-
-  constructor() {
-    this.userService = new UserService();
-    this.followService = new FollowService();
-  }
+  constructor(
+    private readonly userService: UserService,
+    private readonly followService: FollowService,
+  ) {}
 
   me = (_req: Request, res: Response): void => {
     res.status(204).send();

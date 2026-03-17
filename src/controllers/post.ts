@@ -5,11 +5,7 @@ import PostService from '@/services/post';
 import type { CreatePostInput, EditPostInput } from '@/types/post';
 
 class PostController {
-  private postService: PostService;
-
-  constructor() {
-    this.postService = new PostService();
-  }
+  constructor(private readonly postService: PostService) {}
 
   create = async (req: Request, res: Response): Promise<void> => {
     const result = await this.postService.create(req.body as CreatePostInput, req.user!);

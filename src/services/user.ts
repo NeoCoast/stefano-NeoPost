@@ -24,11 +24,7 @@ interface UserProfile {
 }
 
 class UserService {
-  private followService: FollowService;
-
-  constructor() {
-    this.followService = new FollowService();
-  }
+  constructor(private readonly followService: FollowService) {}
 
   async getProfile(userId: bigint): Promise<ServiceResult<UserProfile>> {
     try {

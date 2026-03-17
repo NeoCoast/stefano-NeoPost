@@ -2,15 +2,22 @@ import { Router } from 'express';
 
 import AuthController from '@/controllers/auth';
 import UserController from '@/controllers/user';
+import AuthService from '@/services/auth';
+import UserService from '@/services/user';
+import FollowService from '@/services/follow';
 import passport from '@/middlewares/passport';
 import { validateInput } from '@/middlewares/validate-input';
 
 import { signupSchema, signinSchema } from '@/routes/validators/user-body';
 
 const router = Router();
-const authController = new AuthController();
-const userController = new UserController();
 const authenticate = passport.authenticate('jwt', { session: false });
+
+const authService = new AuthService();
+const followService = new FollowService();
+const userService = new UserService(followService);
+const authController = new AuthController(authService);
+const userController = new UserController(userService, followService);
 
 // Auth routes
 router.post('/signup', validateInput(signupSchema), authController.signup);

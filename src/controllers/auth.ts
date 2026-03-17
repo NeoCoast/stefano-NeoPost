@@ -7,11 +7,7 @@ import passport from '@/middlewares/passport';
 import type { SignupInput } from '@/types/auth';
 
 class AuthController {
-  private authService: AuthService;
-
-  constructor() {
-    this.authService = new AuthService();
-  }
+  constructor(private readonly authService: AuthService) {}
 
   signup = async (req: Request, res: Response): Promise<void> => {
     const result = await this.authService.signup(req.body as SignupInput);
