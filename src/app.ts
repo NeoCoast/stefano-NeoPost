@@ -3,6 +3,7 @@ import express from 'express';
 import passport from '@/middlewares/passport';
 import userRoutes from '@/routes/user';
 import postRoutes from '@/routes/post';
+import feedRoutes from '@/routes/feed';
 
 // Global BigInt JSON serialization fix
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,5 +18,6 @@ app.use(passport.initialize());
 
 app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/feed', feedRoutes);
 
 export default app;
