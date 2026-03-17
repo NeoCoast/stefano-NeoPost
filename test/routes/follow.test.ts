@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 
 import app from '@/app';
 import prisma from '@/db/prisma';
-import JwtService from '@/services/JwtService';
+import JwtService from '@/services/jwt';
 
 const createConfirmedUser = async () => {
   const hashedPassword = await bcrypt.hash('testpass123', 10);
@@ -319,6 +319,16 @@ describe('GET /api/users/:id (profile)', () => {
       data: { followerId: testUser.id, followingId: otherUser.id },
     });
 
+    const post = await prisma.post.create({
+      data: { title: 'Test Post', content: 'Content', userId: testUser.id },
+    });
+    const parentPost = await prisma.post.create({
+      data: { title: 'Parent', content: 'Parent content', userId: otherUser.id },
+    });
+    const comment = await prisma.post.create({
+      data: { content: 'Comment', userId: testUser.id, parentId: parentPost.id },
+    });
+
     const response = await request(app).get(`/api/users/${Number(testUser.id)}`);
 
     expect(response.status).toBe(200);
@@ -327,6 +337,8 @@ describe('GET /api/users/:id (profile)', () => {
     expect(response.body.email).toBe(testUser.email);
     expect(response.body.followerCount).toBe(1);
     expect(response.body.followingCount).toBe(1);
+    expect(response.body.postsCount).toBe(1);
+    expect(response.body.commentsCount).toBe(1);
     expect(response.body.password).toBeUndefined();
 
     await prisma.follow.deleteMany({
@@ -337,6 +349,7 @@ describe('GET /api/users/:id (profile)', () => {
         ],
       },
     });
+    await prisma.post.deleteMany({ where: { id: { in: [post.id, parentPost.id, comment.id] } } });
   });
 
   it('should return 404 when user does not exist', async () => {

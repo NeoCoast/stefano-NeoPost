@@ -1,54 +1,32 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response } from 'express';
 
 import { RESULT_CODES } from '@/utils/constants';
-import UserService from '@/services/UserService';
-import FollowService from '@/services/FollowService';
-import JwtService from '@/services/JwtService';
-import passport from '@/middlewares/passport';
-import type { SignupInput } from '@/types/auth';
+import UserService from '@/services/user';
+import FollowService from '@/services/follow';
 
 class UserController {
-  private userService: UserService;
-  private followService: FollowService;
+  constructor(
+    private readonly userService: UserService,
+    private readonly followService: FollowService,
+  ) {}
 
-  constructor() {
-    this.userService = new UserService();
-    this.followService = new FollowService();
-  }
-
-  signup = async (req: Request, res: Response): Promise<void> => {
-    const result = await this.userService.signup(req.body as SignupInput);
-
-    switch (result.code) {
-      case RESULT_CODES.ALREADY_EXISTS:
-        res.status(409).json({ message: 'Email or username already exists' });
-        return;
-      case RESULT_CODES.ERROR:
-        res.status(500).json({ message: 'Error creating user', error: result.data });
-        return;
-      default:
-        break;
-    }
-
-    res.status(201).json(result.data);
+  me = (_req: Request, res: Response): void => {
+    res.status(204).send();
   };
 
-  confirm = async (req: Request, res: Response): Promise<void> => {
-    const { token } = req.query;
+  getProfile = async (req: Request, res: Response): Promise<void> => {
+    const userId = BigInt(req.params.id as string);
 
-    if (!token) {
-      res.status(400).json({ message: 'Token is required' });
-      return;
-    }
-
-    const result = await this.userService.confirmEmail(token as string);
+    const result = await this.userService.getProfile(userId);
 
     switch (result.code) {
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
+
         return;
       case RESULT_CODES.ERROR:
-        res.status(400).json(result.data);
+        res.status(500).json({ message: 'Error getting user profile' });
+
         return;
       default:
         break;
@@ -57,33 +35,50 @@ class UserController {
     res.json(result.data);
   };
 
-  signin = (req: Request, res: Response, next: NextFunction): void => {
-    passport.authenticate(
-      'local',
-      { session: false },
-      (err: Error | null, user: Express.User | false) => {
-        if (err) {
-          return next(err);
-        }
+  getPosts = async (req: Request, res: Response): Promise<void> => {
+    const userId = BigInt(req.params.id as string);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
 
-        if (!user) {
-          return res.status(401).json({ message: 'Invalid credentials' });
-        }
+    const result = await this.userService.getUserPosts(userId, { page, limit });
 
-        if (!user.confirmed) {
-          return res.status(403).json({ message: 'Please confirm your email before signing in' });
-        }
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'User not found' });
 
-        const token = JwtService.generateAuthToken(Number(user.id));
-        const { password: _, ...userData } = user;
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error getting user posts' });
 
-        return res.json({ token, user: userData });
-      },
-    )(req, res, next);
+        return;
+      default:
+        break;
+    }
+
+    res.json(result.data);
   };
 
-  me = (_req: Request, res: Response): void => {
-    res.status(204).send();
+  getComments = async (req: Request, res: Response): Promise<void> => {
+    const userId = BigInt(req.params.id as string);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+
+    const result = await this.userService.getUserComments(userId, { page, limit });
+
+    switch (result.code) {
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'User not found' });
+
+        return;
+      case RESULT_CODES.ERROR:
+        res.status(500).json({ message: 'Error getting user comments' });
+
+        return;
+      default:
+        break;
+    }
+
+    res.json(result.data);
   };
 
   follow = async (req: Request, res: Response): Promise<void> => {

@@ -1,15 +1,11 @@
 import type { Request, Response } from 'express';
 
 import { RESULT_CODES } from '@/utils/constants';
-import PostService from '@/services/PostService';
+import PostService from '@/services/post';
 import type { CreatePostInput, EditPostInput } from '@/types/post';
 
 class PostController {
-  private postService: PostService;
-
-  constructor() {
-    this.postService = new PostService();
-  }
+  constructor(private readonly postService: PostService) {}
 
   create = async (req: Request, res: Response): Promise<void> => {
     const result = await this.postService.create(req.body as CreatePostInput, req.user!);

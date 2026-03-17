@@ -1,6 +1,6 @@
 import { RESULT_CODES } from '@/utils/constants';
-import UserModel from '@/models/UserModel';
-import FollowModel from '@/models/FollowModel';
+import UserModel from '@/models/user';
+import FollowModel from '@/models/follow';
 import type { ServiceResult } from '@/types/common';
 
 interface PaginatedResult<T> {

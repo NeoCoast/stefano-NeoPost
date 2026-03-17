@@ -10,6 +10,7 @@ export default tseslint.config(
       globals: { ...globals.node },
     },
     rules: {
+      'eol-last': ['error', 'always'],
       'max-len': ['error', { code: 100, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true }],
       'no-console': 'warn',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],

@@ -87,6 +87,46 @@ class PostModel {
       },
     });
   }
+
+  static findByUserId(
+    userId: bigint,
+    options: { page: number; limit: number },
+    type: 'post' | 'comment',
+  ) {
+    return prisma.post.findMany({
+      where: {
+        userId,
+        parentId: type === 'post' ? null : { not: null },
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip: (options.page - 1) * options.limit,
+      take: options.limit,
+      include:
+        type === 'comment'
+          ? {
+              parent: {
+                select: {
+                  id: true,
+                  title: true,
+                },
+              },
+            }
+          : undefined,
+    });
+  }
+
+  static countByUserId(userId: bigint, type: 'post' | 'comment'): Promise<number> {
+    return prisma.post.count({
+      where: {
+        userId,
+        parentId: type === 'post' ? null : { not: null },
+        deletedAt: null,
+      },
+    });
+  }
 }
 
 export default PostModel;
