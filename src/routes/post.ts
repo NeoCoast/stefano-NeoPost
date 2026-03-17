@@ -2,7 +2,8 @@ import { Router } from 'express';
 
 import PostController from '@/controllers/post';
 import PostService from '@/services/post';
-import LikeController from '@/controllers/LikeController';
+import LikeController from '@/controllers/like';
+import LikeService from '@/services/like';
 import passport from '@/middlewares/passport';
 import { validateInput } from '@/middlewares/validate-input';
 import { createPostSchema, editPostSchema } from '@/routes/validators/post-body';
@@ -10,8 +11,9 @@ import { createCommentSchema } from '@/routes/validators/comment-body';
 
 const router = Router();
 const postService = new PostService();
+const likeService = new LikeService();
 const controller = new PostController(postService);
-const likeController = new LikeController();
+const likeController = new LikeController(likeService);
 const authenticate = passport.authenticate('jwt', { session: false });
 
 router.post('/', authenticate, validateInput(createPostSchema), controller.create);

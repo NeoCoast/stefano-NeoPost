@@ -1,6 +1,8 @@
+import { Prisma } from '@prisma/client';
+
 import { RESULT_CODES } from '@/utils/constants';
-import PostModel from '@/models/PostModel';
-import LikeModel from '@/models/LikeModel';
+import PostModel from '@/models/post';
+import LikeModel from '@/models/like';
 import type { ServiceResult } from '@/types/common';
 
 interface PaginatedResult<T> {
@@ -46,14 +48,13 @@ class LikeService {
     postId: bigint,
   ): Promise<ServiceResult<{ message: string }>> {
     try {
-      const deleted = await LikeModel.delete(userId, postId);
-
-      if (!deleted) {
-        return { code: RESULT_CODES.NOT_FOUND, data: null };
-      }
+      await LikeModel.delete(userId, postId);
 
       return { code: RESULT_CODES.SUCCESS, data: { message: 'Post unliked' } };
     } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        return { code: RESULT_CODES.NOT_FOUND, data: null };
+      }
       console.error('Unlike error:', error);
 
       return { code: RESULT_CODES.ERROR, data: error };

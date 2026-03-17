@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import type { Like, User } from '@prisma/client';
 
 import prisma from '@/db/prisma';
@@ -14,17 +13,10 @@ class LikeModel {
     });
   }
 
-  static async delete(userId: bigint, postId: bigint): Promise<Like | null> {
-    try {
-      return await prisma.like.delete({
-        where: { userId_postId: { userId, postId } },
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        return null;
-      }
-      throw error;
-    }
+  static async delete(userId: bigint, postId: bigint): Promise<void> {
+    await prisma.like.delete({
+      where: { userId_postId: { userId, postId } },
+    });
   }
 
   static async exists(userId: bigint, postId: bigint): Promise<boolean> {

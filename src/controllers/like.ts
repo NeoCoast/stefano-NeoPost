@@ -1,14 +1,10 @@
 import type { Request, Response } from 'express';
 
 import { RESULT_CODES } from '@/utils/constants';
-import LikeService from '@/services/LikeService';
+import LikeService from '@/services/like';
 
 class LikeController {
-  private likeService: LikeService;
-
-  constructor() {
-    this.likeService = new LikeService();
-  }
+  constructor(private readonly likeService: LikeService) {}
 
   like = async (req: Request, res: Response): Promise<void> => {
     const postId = BigInt(req.params.id as string);
@@ -24,13 +20,12 @@ class LikeController {
         res.status(400).json({ message: 'Already liked this post' });
         return;
       case RESULT_CODES.SUCCESS:
-        break;
+        res.status(201).json(result.data);
+        return;
       default:
         res.status(500).json({ message: 'Error liking post' });
         return;
     }
-
-    res.status(201).json(result.data);
   };
 
   unlike = async (req: Request, res: Response): Promise<void> => {
@@ -44,13 +39,12 @@ class LikeController {
         res.status(404).json({ message: 'Have not liked this post' });
         return;
       case RESULT_CODES.SUCCESS:
-        break;
+        res.json(result.data);
+        return;
       default:
         res.status(500).json({ message: 'Error unliking post' });
         return;
     }
-
-    res.json(result.data);
   };
 
   getLikers = async (req: Request, res: Response): Promise<void> => {
@@ -65,13 +59,12 @@ class LikeController {
         res.status(404).json({ message: 'Post not found' });
         return;
       case RESULT_CODES.SUCCESS:
-        break;
+        res.json(result.data);
+        return;
       default:
         res.status(500).json({ message: 'Error getting likers' });
         return;
     }
-
-    res.json(result.data);
   };
 }
 
