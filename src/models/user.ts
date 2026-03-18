@@ -28,6 +28,23 @@ class UserModel {
       data: { confirmed: true },
     });
   }
+
+  static findAll(options: {
+    page: number;
+    limit: number;
+  }): Promise<{ id: bigint; username: string }[]> {
+    return prisma.user.findMany({
+      where: { confirmed: true },
+      select: { id: true, username: true },
+      orderBy: { createdAt: 'asc' },
+      skip: (options.page - 1) * options.limit,
+      take: options.limit,
+    });
+  }
+
+  static countAll(): Promise<number> {
+    return prisma.user.count({ where: { confirmed: true } });
+  }
 }
 
 export default UserModel;
