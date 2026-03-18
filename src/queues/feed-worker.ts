@@ -3,11 +3,13 @@ import { Worker } from 'bullmq';
 import prisma from '@/db/prisma';
 import FollowModel from '@/models/follow';
 import PostModel from '@/models/post';
-import { FEED_QUEUE_NAME, RECOMPUTE_JOB_NAME } from '@/queues/feed-queue';
 import connection from '@/queues/connection';
-
-const FOLLOW_BONUS_WEIGHT = 0.1;
-const MAX_FEED_SIZE = 200;
+import {
+  FEED_QUEUE_NAME,
+  FOLLOW_BONUS_WEIGHT,
+  MAX_FEED_SIZE,
+  RECOMPUTE_JOB_NAME,
+} from '@/utils/constants';
 
 export const computeForYouFeed = async (userId: bigint): Promise<void> => {
   try {

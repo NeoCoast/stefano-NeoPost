@@ -1,9 +1,7 @@
 import { Queue } from 'bullmq';
 
 import connection from '@/queues/connection';
-
-export const FEED_QUEUE_NAME = 'feed';
-export const RECOMPUTE_JOB_NAME = 'recompute-feed';
+import { FEED_QUEUE_NAME, RECOMPUTE_JOB_NAME } from '@/utils/constants';
 
 const feedQueue = new Queue(FEED_QUEUE_NAME, {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
