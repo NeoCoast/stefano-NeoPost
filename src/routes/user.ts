@@ -6,9 +6,11 @@ import AuthService from '@/services/auth';
 import UserService from '@/services/user';
 import FollowService from '@/services/follow';
 import passport from '@/middlewares/passport';
+import { requireConfirmed } from '@/middlewares/require-confirmed';
 import { validateInput } from '@/middlewares/validate-input';
+import { resendConfirmationLimiter } from '@/middlewares/rate-limit';
 
-import { signupSchema, signinSchema } from '@/routes/validators/user-body';
+import { signupSchema, signinSchema, resendConfirmationSchema } from '@/routes/validators/user-body';
 
 const router = Router();
 const authenticate = passport.authenticate('jwt', { session: false });
@@ -23,7 +25,16 @@ const userController = new UserController(userService, followService);
 router.post('/signup', validateInput(signupSchema), authController.signup);
 router.get('/confirm', authController.confirm);
 router.post('/signin', validateInput(signinSchema), authController.signin);
-router.get('/me', authenticate, userController.me);
+router.post(
+  '/resend-confirmation',
+  resendConfirmationLimiter,
+  validateInput(resendConfirmationSchema),
+  authController.resendConfirmation,
+);
+router.get('/me', authenticate, requireConfirmed, userController.me);
+
+// List users (authenticated)
+router.get('/', authenticate, requireConfirmed, userController.listUsers);
 
 // Profile routes (public)
 router.get('/:id', userController.getProfile);
@@ -31,9 +42,9 @@ router.get('/:id/posts', userController.getPosts);
 router.get('/:id/comments', userController.getComments);
 
 // Follow routes (authenticated)
-router.post('/:id/follow', authenticate, userController.follow);
-router.delete('/:id/follow', authenticate, userController.unfollow);
-router.get('/:id/followers', authenticate, userController.getFollowers);
-router.get('/:id/following', authenticate, userController.getFollowing);
+router.post('/:id/follow', authenticate, requireConfirmed, userController.follow);
+router.delete('/:id/follow', authenticate, requireConfirmed, userController.unfollow);
+router.get('/:id/followers', authenticate, requireConfirmed, userController.getFollowers);
+router.get('/:id/following', authenticate, requireConfirmed, userController.getFollowing);
 
 export default router;

@@ -146,6 +146,34 @@ class UserService {
       return { code: RESULT_CODES.ERROR, data: error };
     }
   }
+
+  async listUsers(
+    options: { page: number; limit: number },
+  ): Promise<ServiceResult<{ data: object[]; pagination: object }>> {
+    try {
+      const [users, total] = await Promise.all([
+        UserModel.findAll(options),
+        UserModel.countAll(),
+      ]);
+
+      return {
+        code: RESULT_CODES.SUCCESS,
+        data: {
+          data: users,
+          pagination: {
+            page: options.page,
+            limit: options.limit,
+            total,
+            totalPages: Math.ceil(total / options.limit),
+          },
+        },
+      };
+    } catch (error) {
+      console.error('List users error:', error);
+
+      return { code: RESULT_CODES.ERROR, data: error };
+    }
+  }
 }
 
 export default UserService;
