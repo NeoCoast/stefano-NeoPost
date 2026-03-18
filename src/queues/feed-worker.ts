@@ -11,6 +11,22 @@ import {
   RECOMPUTE_JOB_NAME,
 } from '@/utils/constants';
 
+const saveFeedItems = async (
+  userId: bigint,
+  posts: { id: bigint }[],
+): Promise<void> => {
+  await prisma.$transaction([
+    prisma.feedItem.deleteMany({ where: { userId } }),
+    prisma.feedItem.createMany({
+      data: posts.map((post, index) => ({
+        userId,
+        postId: post.id,
+        position: index + 1,
+      })),
+    }),
+  ]);
+};
+
 export const computeForYouFeed = async (userId: bigint): Promise<void> => {
   try {
     // Step 1: Get all posts the user has liked
@@ -19,17 +35,7 @@ export const computeForYouFeed = async (userId: bigint): Promise<void> => {
     // Step 2: Cold start — user has no likes yet
     if (likedPostIds.length === 0) {
       const trendingPosts = await PostModel.findTrendingPosts({ limit: MAX_FEED_SIZE });
-
-      await prisma.$transaction([
-        prisma.feedItem.deleteMany({ where: { userId } }),
-        prisma.feedItem.createMany({
-          data: trendingPosts.map((post, index) => ({
-            userId,
-            postId: post.id,
-            position: index + 1,
-          })),
-        }),
-      ]);
+      await saveFeedItems(userId, trendingPosts);
 
       return;
     }
@@ -48,17 +54,7 @@ export const computeForYouFeed = async (userId: bigint): Promise<void> => {
     if (neighborGroups.length === 0) {
       // No neighbors found — fall back to trending
       const trendingPosts = await PostModel.findTrendingPosts({ limit: MAX_FEED_SIZE });
-
-      await prisma.$transaction([
-        prisma.feedItem.deleteMany({ where: { userId } }),
-        prisma.feedItem.createMany({
-          data: trendingPosts.map((post, index) => ({
-            userId,
-            postId: post.id,
-            position: index + 1,
-          })),
-        }),
-      ]);
+      await saveFeedItems(userId, trendingPosts);
 
       return;
     }
@@ -128,17 +124,10 @@ export const computeForYouFeed = async (userId: bigint): Promise<void> => {
 
     // Step 8: Assign positions and write to FeedItem table
     const topPosts = scoredPosts.slice(0, MAX_FEED_SIZE);
-
-    await prisma.$transaction([
-      prisma.feedItem.deleteMany({ where: { userId } }),
-      prisma.feedItem.createMany({
-        data: topPosts.map(({ post }, index) => ({
-          userId,
-          postId: post.id,
-          position: index + 1,
-        })),
-      }),
-    ]);
+    await saveFeedItems(
+      userId,
+      topPosts.map(({ post }) => post),
+    );
   } catch (error) {
     console.error('computeForYouFeed error:', error);
     throw error;
