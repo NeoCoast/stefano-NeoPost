@@ -26,8 +26,8 @@ router.post('/:id/comments', authenticate, requireConfirmed, validateInput(creat
 router.get('/:id/comments', authenticate, requireConfirmed, controller.getComments);
 
 // Like routes
-router.post('/:id/like', authenticate, likeController.like);
-router.delete('/:id/like', authenticate, likeController.unlike);
-router.get('/:id/likers', authenticate, likeController.getLikers);
+router.post('/:id/like', authenticate, requireConfirmed, likeController.like);
+router.delete('/:id/like', authenticate, requireConfirmed, likeController.unlike);
+router.get('/:id/likers', authenticate, requireConfirmed, likeController.getLikers);
 
 export default router;
