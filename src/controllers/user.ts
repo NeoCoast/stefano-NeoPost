@@ -193,6 +193,35 @@ class UserController {
 
     res.json(result.data);
   };
+
+  updateProfile = async (req: Request, res: Response): Promise<void> => {
+    const userId = BigInt(req.user!.id);
+
+    const result = await this.userService.updateProfile(userId, req.body);
+
+    switch (result.code) {
+      case RESULT_CODES.SUCCESS:
+        res.status(200).json({ message: 'Profile updated successfully' });
+
+        return;
+      case RESULT_CODES.NOT_FOUND:
+        res.status(404).json({ message: 'User not found' });
+
+        return;
+      case RESULT_CODES.INVALID_CREDENTIALS:
+        res.status(401).json({ message: 'Current password is incorrect' });
+
+        return;
+      case RESULT_CODES.ALREADY_EXISTS:
+        res.status(409).json({ message: 'Email already in use' });
+
+        return;
+      default:
+        res.status(500).json({ message: 'Internal server error' });
+
+        return;
+    }
+  };
 }
 
 export default UserController;
