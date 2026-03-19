@@ -200,10 +200,6 @@ class UserController {
     const result = await this.userService.updateProfile(userId, req.body);
 
     switch (result.code) {
-      case RESULT_CODES.SUCCESS:
-        res.status(200).json({ message: 'Profile updated successfully' });
-
-        return;
       case RESULT_CODES.NOT_FOUND:
         res.status(404).json({ message: 'User not found' });
 
@@ -216,11 +212,15 @@ class UserController {
         res.status(409).json({ message: 'Email already in use' });
 
         return;
-      default:
+      case RESULT_CODES.ERROR:
         res.status(500).json({ message: 'Internal server error' });
 
         return;
+      default:
+        break;
     }
+
+    res.status(200).json({ message: 'Profile updated successfully' });
   };
 }
 
