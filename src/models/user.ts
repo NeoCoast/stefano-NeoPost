@@ -56,6 +56,15 @@ class UserModel {
   static countAll(): Promise<number> {
     return prisma.user.count({ where: { confirmed: true } });
   }
+
+  static isEmailTaken(email: string, excludeId?: bigint): Promise<boolean> {
+    return prisma.user.findFirst({
+      where: {
+        ...(excludeId ? { NOT: { id: excludeId } } : {}),
+        OR: [{ email }, { pendingEmail: email }],
+      },
+    }).then((user) => !!user);
+  }
 }
 
 export default UserModel;
