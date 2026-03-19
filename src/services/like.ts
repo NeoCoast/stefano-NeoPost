@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { RESULT_CODES } from '@/utils/constants';
+import { addRecomputeJob } from '@/queues/feed-queue';
 import PostModel from '@/models/post';
 import LikeModel from '@/models/like';
 import type { ServiceResult } from '@/types/common';
@@ -34,6 +35,7 @@ class LikeService {
       }
 
       await LikeModel.create(userId, postId);
+      await addRecomputeJob(userId);
 
       return { code: RESULT_CODES.SUCCESS, data: { message: 'Post liked' } };
     } catch (error) {
@@ -49,6 +51,7 @@ class LikeService {
   ): Promise<ServiceResult<{ message: string }>> {
     try {
       await LikeModel.delete(userId, postId);
+      await addRecomputeJob(userId);
 
       return { code: RESULT_CODES.SUCCESS, data: { message: 'Post unliked' } };
     } catch (error) {

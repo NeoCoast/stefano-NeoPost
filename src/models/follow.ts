@@ -79,6 +79,15 @@ class FollowModel {
   static async countFollowing(followerId: bigint): Promise<number> {
     return prisma.follow.count({ where: { followerId } });
   }
+
+  static async findFollowingIds(followerId: bigint): Promise<bigint[]> {
+    const follows = await prisma.follow.findMany({
+      where: { followerId },
+      select: { followingId: true },
+    });
+
+    return follows.map(({ followingId }) => followingId);
+  }
 }
 
 export default FollowModel;

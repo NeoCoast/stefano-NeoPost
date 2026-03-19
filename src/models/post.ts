@@ -133,6 +133,74 @@ class PostModel {
       where: { postId },
     });
   }
+
+  static async findFeedPosts(
+    userIds: bigint[],
+    options: { page: number; limit: number },
+  ): Promise<Post[]> {
+    return prisma.post.findMany({
+      where: {
+        userId: { in: userIds },
+        parentId: null,
+        deletedAt: null,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (options.page - 1) * options.limit,
+      take: options.limit,
+      include: {
+        user: {
+          select: { id: true, username: true },
+        },
+        _count: {
+          select: { likes: true, comments: true },
+        },
+      },
+    });
+  }
+
+  static async countFeedPosts(userIds: bigint[]): Promise<number> {
+    return prisma.post.count({
+      where: {
+        userId: { in: userIds },
+        parentId: null,
+        deletedAt: null,
+      },
+    });
+  }
+
+  static async findLikedPostIds(userId: bigint): Promise<bigint[]> {
+    const likes = await prisma.like.findMany({
+      where: { userId },
+      select: { postId: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return likes.map(({ postId }) => postId);
+  }
+
+  static async findTrendingPosts(options: {
+    limit: number;
+  }): Promise<Post[]> {
+    return prisma.post.findMany({
+      where: {
+        parentId: null,
+        deletedAt: null,
+      },
+      orderBy: [
+        { likes: { _count: 'desc' } },
+        { createdAt: 'desc' },
+      ],
+      take: options.limit,
+      include: {
+        user: {
+          select: { id: true, username: true },
+        },
+        _count: {
+          select: { likes: true, comments: true },
+        },
+      },
+    });
+  }
 }
 
 export default PostModel;
