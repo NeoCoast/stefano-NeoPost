@@ -19,9 +19,20 @@ class UserModel {
     return prisma.user.findUnique({ where: { id } });
   }
 
+  static updateById(id: bigint, data: Prisma.UserUpdateInput) {
+    return prisma.user.update({ where: { id }, data });
+  }
+
   static async confirmUser(id: bigint): Promise<User | null> {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return null;
+
+    if (user.pendingEmail) {
+      return prisma.user.update({
+        where: { id },
+        data: { email: user.pendingEmail, pendingEmail: null, confirmed: true },
+      });
+    }
 
     return prisma.user.update({
       where: { id },
