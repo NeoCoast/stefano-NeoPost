@@ -3,6 +3,7 @@ declare global {
     interface User {
       id: bigint;
       email: string;
+      pendingEmail: string | null;
       username: string;
       birthday: Date | null;
       password: string;
