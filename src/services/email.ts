@@ -11,6 +11,8 @@ interface EmailResult {
 class EmailService {
   private static transporterPromise: Promise<Transporter> | null = null;
 
+  private static testAccountEmail: string | null = null;
+
   private static getTransporter(): Promise<Transporter> {
     if (this.transporterPromise) return this.transporterPromise;
 
@@ -27,16 +29,18 @@ class EmailService {
         socketTimeout: 10000,
       }));
     } else {
-      this.transporterPromise = nodemailer.createTestAccount().then((testAccount) => (
-        nodemailer.createTransport({
+      this.transporterPromise = nodemailer.createTestAccount().then((testAccount) => {
+        this.testAccountEmail = testAccount.user;
+
+        return nodemailer.createTransport({
           host: 'smtp.ethereal.email',
           port: 587,
           auth: {
             user: testAccount.user,
             pass: testAccount.pass,
           },
-        })
-      ));
+        });
+      });
     }
 
     return this.transporterPromise;
@@ -46,8 +50,13 @@ class EmailService {
     const transporter = await this.getTransporter();
     const confirmUrl = `${process.env.APP_URL}/api/users/confirm?token=${token}`;
 
+    const fromEmail = process.env.BREVO_SENDER_EMAIL
+      || process.env.BREVO_SMTP_USER
+      || this.testAccountEmail
+      || 'test@test.com';
+
     const info = await transporter.sendMail({
-      from: `"NeoPost" <${process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_USER}>`,
+      from: `"NeoPost" <${fromEmail}>`,
       to,
       subject: 'Confirm your NeoPost account',
       html: confirmationEmailHtml(confirmUrl),
