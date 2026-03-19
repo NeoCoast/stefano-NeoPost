@@ -18,10 +18,13 @@ class EmailService {
       this.transporterPromise = Promise.resolve(nodemailer.createTransport({
         host: process.env.BREVO_SMTP_HOST,
         port: Number(process.env.BREVO_SMTP_PORT),
+        secure: Number(process.env.BREVO_SMTP_PORT) === 465,
         auth: {
           user: process.env.BREVO_SMTP_USER,
           pass: process.env.BREVO_SMTP_PASS,
         },
+        connectionTimeout: 10000,
+        socketTimeout: 10000,
       }));
     } else {
       this.transporterPromise = nodemailer.createTestAccount().then((testAccount) => (
@@ -44,7 +47,7 @@ class EmailService {
     const confirmUrl = `${process.env.APP_URL}/api/users/confirm?token=${token}`;
 
     const info = await transporter.sendMail({
-      from: '"NeoPost" <noreply@neopost.app>',
+      from: `"NeoPost" <${process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_USER}>`,
       to,
       subject: 'Confirm your NeoPost account',
       html: confirmationEmailHtml(confirmUrl),

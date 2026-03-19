@@ -22,6 +22,20 @@ const createConfirmedUser = async () => {
   return { user, token };
 };
 
+const createUnconfirmedUser = async () => {
+  const hashedPassword = await bcrypt.hash('testpass123', 10);
+  const user = await prisma.user.create({
+    data: {
+      email: faker.internet.email(),
+      username: faker.internet.username(),
+      password: hashedPassword,
+      confirmed: false,
+    },
+  });
+  const token = JwtService.generateAuthToken(Number(user.id));
+  return { user, token };
+};
+
 describe('Like API', () => {
   let authToken: string;
   let testUser: Awaited<ReturnType<typeof prisma.user.create>>;
@@ -112,6 +126,17 @@ describe('Like API', () => {
 
       expect(response.status).toBe(401);
     });
+
+    it('should return 403 for unconfirmed user', async () => {
+      const { token } = await createUnconfirmedUser();
+
+      const response = await request(app)
+        .post('/api/posts/1/like')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Account not confirmed');
+    });
   });
 
   describe('DELETE /api/posts/:id/like', () => {
@@ -151,6 +176,17 @@ describe('Like API', () => {
         .delete('/api/posts/1/like');
 
       expect(response.status).toBe(401);
+    });
+
+    it('should return 403 for unconfirmed user', async () => {
+      const { token } = await createUnconfirmedUser();
+
+      const response = await request(app)
+        .delete('/api/posts/1/like')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Account not confirmed');
     });
   });
 
@@ -230,6 +266,17 @@ describe('Like API', () => {
         .get('/api/posts/1/likers');
 
       expect(response.status).toBe(401);
+    });
+
+    it('should return 403 for unconfirmed user', async () => {
+      const { token } = await createUnconfirmedUser();
+
+      const response = await request(app)
+        .get('/api/posts/1/likers')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Account not confirmed');
     });
   });
 

@@ -1,76 +1,89 @@
-# NeoPost App
+# NeoPost API
 
-A REST API built with **TypeScript**, Node.js, Express 5, Prisma, and PostgreSQL. Includes user authentication with bcrypt, Passport, and JWT, request validation with AJV, and a full test suite with Mocha.
+A REST API built with **TypeScript**, Express 5, Prisma, and PostgreSQL. Features user authentication with JWT, email confirmation, posts, comments, likes, and user follows.
+
+**Live API:** https://neopost-api.onrender.com
+
+**API Documentation:** See [API_EXAMPLES.md](./API_EXAMPLES.md) for curl examples.
+
+## Features
+
+- User signup with email confirmation
+- JWT-based authentication
+- CRUD operations for posts
+- Comments on posts
+- Like/unlike posts and comments
+- Follow/unfollow users
+- User profiles with activity stats
+- Soft delete for posts
+- Request validation with AJV
+- Rate limiting
 
 ## Prerequisites
 
 - Node.js v18+
-- Docker (for PostgreSQL)
+- Docker (for local PostgreSQL)
 
-## Setup
+## Local Development
 
-**1. Install dependencies**
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-**2. Configure environment variables**
+### 2. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-Then edit `.env` and fill in the required values:
+Edit `.env`:
 
 ```
 NODE_ENV=development
-JWT_SECRET=pick-a-secret-string
+DATABASE_URL=postgresql://dev:dev@localhost:5434/nodejs_training?schema=public
+JWT_SECRET=your-secret-string
+APP_URL=http://localhost:3000
 BREVO_SMTP_HOST=smtp-relay.brevo.com
 BREVO_SMTP_PORT=587
 BREVO_SMTP_USER=
 BREVO_SMTP_PASS=
-APP_URL=http://localhost:3000
-DATABASE_URL=postgresql://dev:dev@localhost:5434/nodejs_training?schema=public
 ```
 
-- `JWT_SECRET` — any random string, used to sign tokens.
-- `BREVO_SMTP_USER` / `BREVO_SMTP_PASS` — only needed if you want production emails. In development, emails are previewed via [Ethereal](https://ethereal.email).
-- `DATABASE_URL` — must match the Docker Compose credentials and port below.
+In development, emails are previewed via [Ethereal](https://ethereal.email).
 
-**3. Start the database**
+### 3. Start the database
 
 ```bash
 docker compose up -d
 ```
 
-This starts PostgreSQL 16 on port `5434`.
+PostgreSQL 16 runs on port `5434`.
 
-**4. Run database migrations**
+### 4. Run migrations
 
 ```bash
 npx prisma migrate dev
 ```
 
-This creates the tables and generates the Prisma Client.
-
-**5. Start the server**
+### 5. Start the server
 
 ```bash
 npm run dev
 ```
 
-The server runs on `http://localhost:3000`.
+Server runs on `http://localhost:3000`.
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start with tsx watch (auto-restart on save) |
-| `npm start` | Start compiled JS (`node dist/bin/www.js`) |
-| `npm test` | Run tests with Mocha + tsx |
+| `npm start` | Start production server (runs migrations first) |
+| `npm test` | Run tests with Mocha |
 | `npm run test:watch` | Run tests in watch mode |
-| `npm run typecheck` | Type-check with `tsc --noEmit` |
+| `npm run typecheck` | Type-check with `tsc` |
 | `npm run lint` | Check for lint errors |
 | `npm run lint:fix` | Auto-fix lint errors |
 
@@ -80,24 +93,27 @@ The server runs on `http://localhost:3000`.
 src/
 ├── bin/www.ts           # HTTP server entry point
 ├── app.ts               # Express app setup
-├── routes/              # Route handlers
+├── routes/              # Route handlers (Express routers)
 │   └── validators/      # AJV JSON schemas
-├── business/            # Business logic layer
-├── dataaccess/          # Database queries (Prisma)
+├── controllers/         # Request handlers
+├── services/            # Business logic layer
+├── models/              # Prisma query wrappers
 ├── db/
 │   └── prisma.ts        # PrismaClient singleton
 ├── middlewares/         # Express middleware (passport, validation)
-├── services/            # JWT and email services
 ├── templates/           # Email HTML templates
-├── types/               # Shared TypeScript types and declarations
+├── types/               # TypeScript type definitions
 └── utils/               # Shared constants
 prisma/
 ├── schema.prisma        # Database schema
 └── migrations/          # Migration history
-test/
-├── routes/              # Route integration tests
-├── services/            # Service unit tests
-└── utils/               # Utility unit tests
+test/                    # Mirror of src/ structure
+```
+
+### Request Flow
+
+```
+Route → validateInput middleware → Controller → Service → Model → Prisma
 ```
 
 ## Tech Stack
@@ -105,25 +121,45 @@ test/
 | Tool | Purpose |
 |------|---------|
 | TypeScript | Static type checking (strict mode) |
-| tsx | TypeScript runtime for development |
+| tsx | TypeScript runtime |
 | Express 5 | HTTP server and routing |
 | Prisma | ORM (PostgreSQL) |
 | AJV | Request body validation |
 | bcrypt | Password hashing |
-| Passport (local + JWT) | Authentication |
-| jsonwebtoken | Token generation and verification |
-| Nodemailer | Confirmation emails |
-| Mocha + Supertest | Testing (with tsx loader) |
-| ESLint + typescript-eslint | Code quality and type-aware linting |
-| Husky | Pre-commit hooks (lint + tests) |
-| Docker Compose | Local PostgreSQL database |
+| Passport + JWT | Authentication |
+| Nodemailer | Transactional emails |
+| Mocha + Supertest | Testing |
+| ESLint | Code linting |
+| Husky | Pre-commit hooks |
 
 ## Database
 
-The development database runs in Docker:
+Local development database (Docker):
 
 - **Host:** `localhost:5434`
 - **Database:** `nodejs_training`
 - **User / Password:** `dev` / `dev`
 
-Connection string: `postgresql://dev:dev@localhost:5434/nodejs_training?schema=public`
+## Deployment
+
+This project is deployed on [Render](https://render.com) using a `render.yaml` blueprint.
+
+### Required Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_SECRET` | Secret for signing JWTs |
+| `NODE_ENV` | Set to `production` |
+| `APP_URL` | Base URL for email links |
+| `BREVO_SMTP_HOST` | SMTP server host |
+| `BREVO_SMTP_PORT` | SMTP port (2525 for Render) |
+| `BREVO_SMTP_USER` | SMTP username |
+| `BREVO_SMTP_PASS` | SMTP password |
+| `BREVO_SENDER_EMAIL` | Verified sender email address |
+
+### Notes
+
+- Free tier web services spin down after 15 minutes of inactivity (cold start ~30s)
+- Free tier PostgreSQL expires after 90 days
+- Port 587 is often blocked on free tiers; use port 2525 for Brevo SMTP
