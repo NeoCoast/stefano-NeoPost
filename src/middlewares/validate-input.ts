@@ -3,6 +3,11 @@ import type { Request, Response, NextFunction } from 'express';
 
 const ajv = new Ajv();
 
+ajv.addFormat('date', {
+  type: 'string',
+  validate: (data: string) => /^\d{4}-\d{2}-\d{2}$/.test(data),
+});
+
 export const validateInput = (schema: Schema) => {
   const validate = ajv.compile(schema);
 
