@@ -47,7 +47,7 @@ class EmailService {
     const confirmUrl = `${process.env.APP_URL}/api/users/confirm?token=${token}`;
 
     const info = await transporter.sendMail({
-      from: `"NeoPost" <${process.env.BREVO_SMTP_USER}>`,
+      from: `"NeoPost" <${process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_USER}>`,
       to,
       subject: 'Confirm your NeoPost account',
       html: confirmationEmailHtml(confirmUrl),
