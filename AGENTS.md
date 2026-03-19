@@ -16,6 +16,7 @@ Learning/training project — see `CLAUDE.md` for teaching workflow.
 | `npm run lint` | Lint `src/` and `test/` |
 | `npm run lint:fix` | Auto-fix lint issues |
 | `npm run typecheck` | Run TypeScript type check |
+| `npm run worker` | Start BullMQ feed worker |
 
 ### Running a Single Test
 
@@ -35,6 +36,12 @@ npx mocha --require tsx --grep "should return 401" test/
 - Run migrations: `npx prisma migrate dev`
 
 **Important:** Ensure `.env` `DATABASE_URL` matches Docker configuration (port, database name, credentials). Mismatch causes tests to hit a different database than migrations.
+
+### Redis
+
+- Redis 7 via Docker: `docker compose up -d redis` (port **6379**)
+- Used by BullMQ for the feed recompute job queue
+- Set `REDIS_HOST` and `REDIS_PORT` in `.env`
 
 ### Pre-commit Hook
 

@@ -151,6 +151,9 @@ class PostModel {
         user: {
           select: { id: true, username: true },
         },
+        _count: {
+          select: { likes: true, comments: true },
+        },
       },
     });
   }
