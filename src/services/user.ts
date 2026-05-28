@@ -1,9 +1,15 @@
+import bcrypt from 'bcrypt';
+
 import { RESULT_CODES } from '@/utils/constants';
+import { verifyPassword } from '@/utils/auth';
 import UserModel from '@/models/user';
 import PostModel from '@/models/post';
 import FollowService from '@/services/follow';
+import JwtService from '@/services/jwt';
+import EmailService from '@/services/email';
 import type { ServiceResult } from '@/types/common';
-import type { Post } from '@prisma/client';
+import type { Post, Prisma } from '@prisma/client';
+import type { UpdateProfileInput } from '@/types/auth';
 
 interface CommentWithParent extends Post {
   parent: { id: bigint; title: string | null } | null;
@@ -170,6 +176,63 @@ class UserService {
       };
     } catch (error) {
       console.error('List users error:', error);
+
+      return { code: RESULT_CODES.ERROR, data: error };
+    }
+  }
+
+  async updateProfile(
+    userId: bigint,
+    input: UpdateProfileInput,
+  ): Promise<ServiceResult<{ message: string }>> {
+    try {
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        return { code: RESULT_CODES.NOT_FOUND, data: null };
+      }
+
+      if (input.newPassword) {
+        if (!input.currentPassword) {
+          return { code: RESULT_CODES.INVALID_CREDENTIALS, data: null };
+        }
+
+        const isValidPassword = await verifyPassword(user.password, input.currentPassword);
+
+        if (!isValidPassword) {
+          return { code: RESULT_CODES.INVALID_CREDENTIALS, data: null };
+        }
+      }
+
+      if (input.email) {
+        const isEmailTaken = await UserModel.isEmailTaken(input.email, userId);
+
+        if (isEmailTaken) {
+          return { code: RESULT_CODES.ALREADY_EXISTS, data: null };
+        }
+      }
+
+      const updateData: Prisma.UserUpdateInput = {};
+
+      if (input.email) {
+        updateData.pendingEmail = input.email;
+        const token = JwtService.generateConfirmationToken(Number(userId));
+        await EmailService.sendConfirmationEmail(input.email, token);
+      }
+
+      if (input.birthday) {
+        updateData.birthday = new Date(input.birthday);
+      }
+
+      if (input.newPassword) {
+        updateData.password = await bcrypt.hash(input.newPassword, 10);
+      }
+
+      await UserModel.updateById(userId, updateData);
+
+      return { code: RESULT_CODES.SUCCESS, data: { message: 'Profile updated successfully' } };
+    } catch (error) {
+      console.error('Update profile error:', error);
 
       return { code: RESULT_CODES.ERROR, data: error };
     }

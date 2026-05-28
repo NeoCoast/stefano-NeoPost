@@ -10,7 +10,7 @@ import { requireConfirmed } from '@/middlewares/require-confirmed';
 import { validateInput } from '@/middlewares/validate-input';
 import { resendConfirmationLimiter } from '@/middlewares/rate-limit';
 
-import { signupSchema, signinSchema, resendConfirmationSchema } from '@/routes/validators/user-body';
+import { signupSchema, signinSchema, resendConfirmationSchema, updateProfileSchema } from '@/routes/validators/user-body';
 
 const router = Router();
 const authenticate = passport.authenticate('jwt', { session: false });
@@ -32,6 +32,13 @@ router.post(
   authController.resendConfirmation,
 );
 router.get('/me', authenticate, requireConfirmed, userController.me);
+router.put(
+  '/me',
+  authenticate,
+  requireConfirmed,
+  validateInput(updateProfileSchema),
+  userController.updateProfile,
+);
 
 // List users (authenticated)
 router.get('/', authenticate, requireConfirmed, userController.listUsers);
